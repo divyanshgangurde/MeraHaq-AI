@@ -8,7 +8,7 @@
 - [x] Build the polished mock question, loading, answer, verification, citation, timeline, lineage graph, and document-detail experience without connecting real AI.
 - [x] Validate the landing page and mock experience at desktop, tablet, and mobile breakpoints, including focus, hover, loading, empty, error, and accessibility states.
 - [x] Define the relational schema for schemes, documents, relationships, evidence, chunks, lineage assertions, and evaluation cases.
-- [ ] Add controlled prototype records for three to five curated Indian policy chains, beginning with one verified real document chain.
+- [x] Add controlled prototype records for three to five curated Indian policy chains, beginning with one verified real document chain and marking all not-yet-ingested sources explicitly as candidates.
 - [x] Implement object-storage references for original PDFs and derived artifacts without storing file bytes in database rows.
 - [x] Implement page-aware text extraction, metadata extraction, document-number/date normalization, and reference extraction.
 - [x] Implement deterministic relationship detection for explicit amendment, supersession, corrigendum, replacement, revocation, extension, reference, and continuation language.
@@ -22,8 +22,8 @@
 - [x] Add a clearly labeled mock citation and document-detail panel with source, page, quote, and URL placeholders that cannot be mistaken for verified policy evidence.
 - [x] Complete and record tablet, keyboard-focus, hover, loading, empty, error, and accessible graph/timeline validation before closing the frontend milestone.
 - [x] Add and inspect a deterministic loading preview state, then record graph-node keyboard semantics and focus behavior in the validation notes.
-- [ ] Ingest the first official PM-KISAN document chain into object storage when the official source host permits a server-side connection; record byte hashes and page evidence.
-- [ ] Curate and ingest two to four additional official policy chains after source-level relationship evidence is verified.
+- [x] Ingest the first official PM-KISAN document chain into object storage, recording byte hashes, page-aware text, and a source-validated AMENDS relationship.
+- [x] Curate and ingest two additional official policy chains after source-level relationship evidence is verified: Jal Jeevan Mission KRC and National Livestock Mission.
 - [x] Wire PDF metadata and normalized document-number/date extraction into ingestion persistence and add test coverage.
 - [x] Persist uncertain relationship detections as explicit AMBIGUOUS or REJECTED outcomes and add tests for both paths.
 - [x] Build a concrete lineage graph output with nodes, edges, and current-applicability status, then add graph tests.

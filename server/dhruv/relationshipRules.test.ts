@@ -22,6 +22,22 @@ describe("DHRUV AI deterministic relationship and evidence rules", () => {
     });
   });
 
+  it("classifies an official amendment-in-guidelines title as an amendment relationship", () => {
+    expect(
+      detectDeterministicRelationship(
+        "Amendment in guidelines for Capacity Building by Key Resource Centre (KRCs)"
+      )
+    ).toMatchObject({ state: "MATCHED", relationshipType: "AMENDS" });
+  });
+
+  it("classifies explicit amended-in wording in an indexed official source span", () => {
+    expect(
+      detectDeterministicRelationship(
+        "Guidelines for Capacity Building by Key Resource Centres, October 2020 (amended in November 2023)"
+      )
+    ).toMatchObject({ state: "MATCHED", relationshipType: "AMENDS" });
+  });
+
   it("rejects a relationship evidence quote that is absent from indexed source text", () => {
     const result = validateEvidenceQuote({
       sourceText: "The official document has no matching statement.",

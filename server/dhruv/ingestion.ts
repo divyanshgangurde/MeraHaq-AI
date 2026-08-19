@@ -71,6 +71,10 @@ async function downloadPdf(sourceUrl: string): Promise<Buffer> {
   const response = await fetch(sourceUrl, {
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     redirect: "follow",
+    headers: {
+      "user-agent": "DHRUV-AI official-source verifier/1.0",
+      accept: "application/pdf,application/octet-stream;q=0.9,*/*;q=0.1",
+    },
   });
   if (!response.ok)
     throw new Error(`Official source returned HTTP ${response.status}`);

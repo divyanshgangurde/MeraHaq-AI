@@ -5,6 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { listSupportedPolicyDocuments } from "./dhruv/catalog";
+import { curatedChains } from "./dhruv/curatedChains";
 import { answerPolicyQuestion } from "./dhruv/answering";
 import { ingestOfficialPdf } from "./dhruv/ingestion";
 
@@ -12,11 +13,12 @@ export const appRouter = router({
   system: systemRouter,
   project: router({
     info: publicProcedure.query(() => ({
-      title: process.env.VITE_APP_TITLE ?? "DHRUV AI",
+      title: "DHRUV AI",
     })),
   }),
   dhruv: router({
     catalog: publicProcedure.query(() => listSupportedPolicyDocuments()),
+    curationManifest: publicProcedure.query(() => curatedChains),
     answer: publicProcedure
       .input(
         z.object({

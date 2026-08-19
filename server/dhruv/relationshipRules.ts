@@ -58,7 +58,8 @@ const deterministicRules: Rule[] = [
   },
   {
     relationshipType: "AMENDS",
-    pattern: /\b(?:amendment to|been amended|is amended|amends)\b/i,
+    pattern:
+      /\b(?:amendment\s+(?:in|to)\s+(?:the\s+)?(?:operational\s+)?guidelines|been amended|amended\s+(?:in|on|as of)|is amended|amends)\b/i,
     confidence: 0.97,
     reason: "Explicit amendment language",
   },
