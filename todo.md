@@ -43,5 +43,5 @@
 - [x] Add or refine focused tests for live-answer safety, including grounded citations and clear abstention outside the supported corpus.
 - [x] Record the end-to-end user-facing policy-answering validation results and any explicit corpus-coverage limitations.
 - [x] Add a bounded, accessible timeout and retry treatment for DHRUV AI requests that exceed the expected evidence-generation window.
-- [ ] Commit and push the DHRUV AI live-answer safety and timeout improvements to the MeraHaq-AI repository.
+- [x] Commit and push the DHRUV AI live-answer safety and timeout improvements to the MeraHaq-AI repository: `a06d051`.
 - [x] Add a focused positive grounded-citation test for a supported answer, then re-run the full test suite before closing the live-answer safety task.
