@@ -45,3 +45,7 @@
 - [x] Add a bounded, accessible timeout and retry treatment for DHRUV AI requests that exceed the expected evidence-generation window.
 - [x] Commit and push the DHRUV AI live-answer safety and timeout improvements to the MeraHaq-AI repository: `a06d051`.
 - [x] Add a focused positive grounded-citation test for a supported answer, then re-run the full test suite before closing the live-answer safety task.
+- [x] Diagnose why the production domain remains on the pre-correction DHRUV AI release despite the synchronized MeraHaq-AI source branch: production is pinned to the last managed checkpoint, which predates the correction.
+- [ ] Create a current managed checkpoint and publish the updated MeraHaq AI platform release to the production domain.
+- [ ] Verify the production domain presents MeraHaq AI as the platform and DHRUV AI as the embedded assistant.
+- [x] Create a self-contained handoff brief for a new chat, including repository state, architecture, validated behavior, production blocker, and prioritized next steps: `NEXT_CHAT_HANDOFF.md`.
