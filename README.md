@@ -37,7 +37,28 @@ pnpm build
 | `PROJECT_ARCHITECTURE.md`  | Portable technical architecture and concrete retrieval design  |
 | `DECISIONS.md`             | Explicit architectural decisions and Manus-specific boundaries |
 | `MERAHAQ_DEMO_SCENARIO.md` | SIH demonstration target and acceptance criteria               |
-| `.env.example`             | Placeholder environment configuration with no secrets          |
+| Managed project settings   | Secure runtime configuration, maintained through project settings rather than a committed environment file |
+
+## Managed environment configuration
+
+The approved project workflow uses managed project settings instead of a committed `.env.example` file. This is intentional: local environment files are protected by the project platform so that application credentials cannot be accidentally added to source control. The public product title is configured as `DHRUV AI`; the application also enforces this title through its public project-information contract.
+
+For a portable deployment outside the managed project environment, create a local, untracked environment file from the following **placeholder-only** template. Replace values in your deployment secret manager; never commit the resulting file.
+
+```dotenv
+DATABASE_URL=mysql://USER:PASSWORD@HOST:PORT/DATABASE
+JWT_SECRET=replace-with-a-long-random-local-secret
+VITE_APP_TITLE=DHRUV AI
+VITE_APP_ID=
+OAUTH_SERVER_URL=
+VITE_OAUTH_PORTAL_URL=
+BUILT_IN_FORGE_API_URL=
+BUILT_IN_FORGE_API_KEY=
+VITE_FRONTEND_FORGE_API_URL=
+VITE_FRONTEND_FORGE_API_KEY=
+VITE_ANALYTICS_ENDPOINT=
+VITE_ANALYTICS_WEBSITE_ID=
+```
 
 ## Portability
 
@@ -45,4 +66,4 @@ Core policy, lineage, retrieval, validation, evaluation, and orchestration logic
 
 ## Current project phase
 
-The repository has been initialized. The next implementation milestone is a polished mock DHRUV AI experience; real document ingestion and RAG integration will be introduced only after the mock user journey is stable.
+DHRUV AI now includes a polished evidence-first interface, guarded official-PDF ingestion, source-object storage, page-aware extraction, deterministic relationship classification, lineage-aware retrieval, citation validation, and evaluation utilities. Three official source lineages—Jal Jeevan Mission Key Resource Centres, PM-KISAN, and National Livestock Mission—are indexed with verified `AMENDS` relationships. PMFBY and e-NAM remain explicit candidate-only chains until their source documents are independently ingested and validated.

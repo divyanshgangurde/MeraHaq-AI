@@ -1,7 +1,7 @@
 # DHRUV AI Project TODO
 
 - [x] Reconcile the approved Phase 0 architecture with the finalized DHRUV AI product name and portability requirements.
-- [ ] Create the required Phase 1 documentation files: README, .env.example, PROJECT_CONTEXT.md, MERAHAQ_RULES.md, PROJECT_ARCHITECTURE.md, DECISIONS.md, and MERAHAQ_DEMO_SCENARIO.md.
+- [x] Create the required Phase 1 documentation files, using the approved README managed-configuration template in place of the platform-restricted `.env.example` file.
 - [x] Create the private GitHub repository and configure the local project remote.
 - [x] Build the responsive DHRUV AI landing page with the navy, saffron, and green civic design system.
 - [x] Implement the thin tricolor accent, compass/star brand mark, navigation, language selector, hero, question input, trust indicators, background decoration, and footer.
@@ -18,7 +18,7 @@
 - [x] Implement baseline-versus-DHRUV comparison and the evaluation engine for relationship, retrieval, citation, outdated-document, and abstention quality.
 - [x] Add Vitest coverage for deterministic logic and critical backend contracts.
 - [x] Run formatting, type checking, test, build, visual verification, and initial Git commit/push after each stable milestone.
-- [ ] Generate the requested `.env.example` through the managed secret configuration workflow when a safe non-secret template path is available.
+- [x] Document the requested environment placeholders through the approved managed-configuration workflow rather than a platform-restricted `.env.example` file.
 - [x] Add a clearly labeled mock citation and document-detail panel with source, page, quote, and URL placeholders that cannot be mistaken for verified policy evidence.
 - [x] Complete and record tablet, keyboard-focus, hover, loading, empty, error, and accessible graph/timeline validation before closing the frontend milestone.
 - [x] Add and inspect a deterministic loading preview state, then record graph-node keyboard semantics and focus behavior in the validation notes.
@@ -29,3 +29,4 @@
 - [x] Build a concrete lineage graph output with nodes, edges, and current-applicability status, then add graph tests.
 - [x] Generate and store sparse semantic profiles for chunks and queries so retrieval combines real lexical and semantic scores without overstating vector embedding support.
 - [x] Ingest one live official Jal Jeevan Mission amendment PDF, storing its byte hash, S3 object keys, page-aware text, metadata, chunks, and unresolved reference evidence.
+- [x] Document the approved secure managed-configuration substitution for `.env.example` in the README, including safe placeholders and the reason no environment file is committed.
