@@ -15,3 +15,5 @@ The mock answer state was inspected at desktop width. It presents the submitted 
 ## Loading and lineage accessibility check
 
 The deterministic loading state was inspected at desktop width and renders a clear progress indicator while preserving the submitted question and trust indicators. The graph’s selectable nodes use native buttons, retain a visible focus outline, expose their selected state through `aria-pressed`, and announce the selected-node summary through a polite live region. The timeline is presented as readable sequential text and the graph interaction does not depend on spatial position alone. Empty state is the initial question-only landing view; the invalid-input alert provides the error state.
+
+The same deterministic loading, answer, and error preview routes were rechecked after the grounded-answer interface update. Their response-state treatments remain legible at desktop width, and no unverified policy facts, page references, or relationship claims are presented as verified evidence.

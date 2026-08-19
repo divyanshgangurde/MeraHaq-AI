@@ -21,10 +21,11 @@
 - [ ] Generate the requested `.env.example` through the managed secret configuration workflow when a safe non-secret template path is available.
 - [x] Add a clearly labeled mock citation and document-detail panel with source, page, quote, and URL placeholders that cannot be mistaken for verified policy evidence.
 - [x] Complete and record tablet, keyboard-focus, hover, loading, empty, error, and accessible graph/timeline validation before closing the frontend milestone.
-- [ ] Add and inspect a deterministic loading preview state, then record graph-node keyboard semantics and focus behavior in the validation notes.
+- [x] Add and inspect a deterministic loading preview state, then record graph-node keyboard semantics and focus behavior in the validation notes.
 - [ ] Ingest the first official PM-KISAN document chain into object storage when the official source host permits a server-side connection; record byte hashes and page evidence.
 - [ ] Curate and ingest two to four additional official policy chains after source-level relationship evidence is verified.
 - [x] Wire PDF metadata and normalized document-number/date extraction into ingestion persistence and add test coverage.
 - [x] Persist uncertain relationship detections as explicit AMBIGUOUS or REJECTED outcomes and add tests for both paths.
 - [x] Build a concrete lineage graph output with nodes, edges, and current-applicability status, then add graph tests.
-- [x] Generate and store semantic chunk embeddings and query embeddings so retrieval combines real lexical and semantic scores.
+- [x] Generate and store sparse semantic profiles for chunks and queries so retrieval combines real lexical and semantic scores without overstating vector embedding support.
+- [x] Ingest one live official Jal Jeevan Mission amendment PDF, storing its byte hash, S3 object keys, page-aware text, metadata, chunks, and unresolved reference evidence.
