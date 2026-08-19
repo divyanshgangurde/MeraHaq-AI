@@ -1,0 +1,23 @@
+# DHRUV AI Project TODO
+
+- [x] Reconcile the approved Phase 0 architecture with the finalized DHRUV AI product name and portability requirements.
+- [ ] Create the required Phase 1 documentation files: README, .env.example, PROJECT_CONTEXT.md, MERAHAQ_RULES.md, PROJECT_ARCHITECTURE.md, DECISIONS.md, and MERAHAQ_DEMO_SCENARIO.md.
+- [x] Create the private GitHub repository and configure the local project remote.
+- [x] Build the responsive DHRUV AI landing page with the navy, saffron, and green civic design system.
+- [x] Implement the thin tricolor accent, compass/star brand mark, navigation, language selector, hero, question input, trust indicators, background decoration, and footer.
+- [ ] Build the polished mock question, loading, answer, verification, citation, timeline, lineage graph, and document-detail experience without connecting real AI.
+- [ ] Validate the landing page and mock experience at desktop, tablet, and mobile breakpoints, including focus, hover, loading, empty, error, and accessibility states.
+- [ ] Define the relational schema for schemes, documents, relationships, evidence, chunks, lineage assertions, and evaluation cases.
+- [ ] Add controlled prototype records for three to five curated Indian policy chains, beginning with one verified real document chain.
+- [ ] Implement object-storage references for original PDFs and derived artifacts without storing file bytes in database rows.
+- [ ] Implement page-aware text extraction, metadata extraction, document-number/date normalization, and reference extraction.
+- [ ] Implement deterministic relationship detection for explicit amendment, supersession, corrigendum, replacement, revocation, extension, reference, and continuation language.
+- [ ] Implement evidence validation, ambiguity routing, and internal REJECTED states; never fabricate a relationship or citation.
+- [ ] Implement lineage graph construction and current-applicability determination distinct from publication-date ordering.
+- [ ] Implement lineage-aware hybrid retrieval, grounded answer generation, and citation validation.
+- [ ] Implement baseline-versus-DHRUV comparison and the evaluation engine for relationship, retrieval, citation, outdated-document, and abstention quality.
+- [ ] Add Vitest coverage for deterministic logic and critical backend contracts.
+- [ ] Run formatting, type checking, test, build, visual verification, and initial Git commit/push after each stable milestone.
+- [ ] Generate the requested `.env.example` through the managed secret configuration workflow when a safe non-secret template path is available.
+- [ ] Add a clearly labeled mock citation and document-detail panel with source, page, quote, and URL placeholders that cannot be mistaken for verified policy evidence.
+- [ ] Complete and record tablet, keyboard-focus, hover, loading, empty, error, and accessible graph/timeline validation before closing the frontend milestone.
