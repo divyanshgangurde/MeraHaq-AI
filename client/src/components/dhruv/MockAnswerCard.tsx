@@ -45,8 +45,8 @@ export function MockAnswerCard({ question, response }: MockAnswerCardProps) {
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#6F7782]">
             {response
-              ? "DHRUV AI evidence response"
-              : "DHRUV AI preview response"}
+              ? "MeraHaq AI · DHRUV AI evidence response"
+              : "MeraHaq AI · DHRUV AI preview response"}
           </p>
           <h2 className="mt-2 text-xl font-extrabold leading-tight text-[#142B4A] sm:text-2xl">
             {response

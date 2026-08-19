@@ -1,8 +1,8 @@
-# DHRUV AI Validation Notes
+# MeraHaq AI Validation Notes
 
 ## Mock frontend visual check — desktop
 
-The rendered landing page was inspected at a 1280px desktop viewport. The top tricolor accent, DHRUV AI brand mark, light civic palette, centered hero, saffron-highlighted required heading, large policy-question composer, three non-card trust indicators, restrained flowing decoration, and responsive footer all rendered as intended. The first capture revealed a missing Tailwind stylesheet import; this was corrected before the second capture. The current implementation is a mock-only preview and does not display fabricated policy documents, citations, or relationships.
+The rendered landing page was inspected at a 1280px desktop viewport. The top tricolor accent, MeraHaq AI brand mark, light civic palette, centered hero, saffron-highlighted platform heading, DHRUV AI assistant label, large policy-question composer, three non-card trust indicators, restrained flowing decoration, and responsive footer all rendered as intended. The first capture revealed a missing Tailwind stylesheet import; this was corrected before the second capture. The current implementation is a mock-only preview and does not display fabricated policy documents, citations, or relationships.
 
 ## Mock frontend visual check — mobile and tablet
 
@@ -17,3 +17,11 @@ The mock answer state was inspected at desktop width. It presents the submitted 
 The deterministic loading state was inspected at desktop width and renders a clear progress indicator while preserving the submitted question and trust indicators. The graph’s selectable nodes use native buttons, retain a visible focus outline, expose their selected state through `aria-pressed`, and announce the selected-node summary through a polite live region. The timeline is presented as readable sequential text and the graph interaction does not depend on spatial position alone. Empty state is the initial question-only landing view; the invalid-input alert provides the error state.
 
 The same deterministic loading, answer, and error preview routes were rechecked after the grounded-answer interface update. Their response-state treatments remain legible at desktop width, and no unverified policy facts, page references, or relationship claims are presented as verified evidence.
+
+## Brand hierarchy validation — 19 August 2026
+
+The rendered local landing page was inspected after the branding correction. Its browser title is **“MeraHaq AI — Government Policy Platform.”** The navigation, brand mark, and primary hero establish **MeraHaq AI** as the government policy platform before the question composer. The composer then introduces **DHRUV AI** as “Your policy guide,” with the assistant-specific question heading **“How can I help you today?”** This preserves the requested product hierarchy without changing the existing civic layout or DHRUV AI retrieval modules.
+
+Headless responsive captures at **1280 × 720** and **768 × 1024** confirm that the full navigation and compact-menu states preserve that same hierarchy. At both widths, the MeraHaq AI mark and platform label appear before the hero, and the DHRUV AI assistant label appears immediately above the question composer. No clipping, overlap, or contrast issue was observed in either captured view.
+
+The **375 × 812** mobile capture retains the MeraHaq AI mark, compact navigation control, readable platform label, and DHRUV AI assistant introduction above the composer. The hero and input remain within the viewport without clipping or overlap, completing desktop, tablet, and mobile verification for the branding correction.

@@ -1,8 +1,8 @@
-# DHRUV AI — SIH Demo Scenario
+# MeraHaq AI — SIH Demo Scenario
 
 ## Demonstration objective
 
-The SIH demonstration proves that DHRUV AI produces a more trustworthy policy answer than a baseline retriever because it checks document lineage before presenting evidence as current.
+The SIH demonstration proves that **MeraHaq AI** provides more trustworthy policy information than a baseline retriever because its embedded **DHRUV AI** assistant checks document lineage before presenting evidence as current.
 
 ## Required scenario
 

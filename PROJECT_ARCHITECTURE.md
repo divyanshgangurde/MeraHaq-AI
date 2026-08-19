@@ -1,12 +1,12 @@
-# DHRUV AI — Project Architecture
+# MeraHaq AI — Project Architecture
 
 ## 1. Architecture principle
 
-DHRUV AI has two deliberately separate stages: **candidate retrieval** and **current-applicability validation**. A document cannot support a current-answer claim merely because it is semantically similar to the question.
+**MeraHaq AI** is the supersession-aware government policy information platform. **DHRUV AI** is its assistant and RAG intelligence layer, with two deliberately separate stages: **candidate retrieval** and **current-applicability validation**. A document cannot support a current-answer claim merely because it is semantically similar to the question.
 
 ```mermaid
 flowchart TD
-  Q[Policy question] --> CR[Candidate retrieval]
+  Q[Policy question to DHRUV AI] --> CR[Candidate retrieval]
   CR --> MF[Metadata filters]
   MF --> LV[Lineage validation]
   LV --> CE[Applicable-evidence selection]
@@ -81,7 +81,7 @@ final_score  = hybrid_score + lineage_adjustment + evidence_adjustment
 | `chunk_terms`            | Normalized lexical term statistics for portable BM25-style scoring                      |
 | `lineage_assertions`     | Computed current/historical/ambiguous status with an explainable basis                  |
 | `evaluation_cases`       | Gold questions and expected current documents, relationships, and citations             |
-| `evaluation_runs`        | Reproducible baseline and DHRUV AI outcomes and metrics                                 |
+| `evaluation_runs`        | Reproducible baseline and DHRUV AI assistant outcomes and metrics                       |
 
 Object storage holds original PDFs and derived artifacts. The database stores only storage keys, source URLs, metadata, and hashes.
 
@@ -136,4 +136,4 @@ The backend validates each citation against indexed source text before it can ap
 
 ## 9. Delivery sequence
 
-The next implementation phase is a visually polished mock DHRUV AI experience. It must clearly label preview content and will not connect real ingestion or RAG. Real document selection and validation precede ingestion, relationship detection, and production answer flow.
+MeraHaq AI presents the platform experience and its verified policy corpus. DHRUV AI handles the assistant journey, including question understanding, retrieval, lineage-aware selection, grounded answer generation, citation validation, and uncertainty communication. The existing implementation preserves this separation while keeping the source, lineage, and evidence safeguards unchanged.

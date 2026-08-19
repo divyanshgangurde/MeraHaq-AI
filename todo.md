@@ -1,9 +1,8 @@
-# DHRUV AI Project TODO
-
-- [x] Reconcile the approved Phase 0 architecture with the finalized DHRUV AI product name and portability requirements.
+# MeraHaq AI Project TODO
+- [x] Reconcile the approved Phase 0 architecture with the finalized MeraHaq AI platform identity, DHRUV AI assistant role, and portability requirements.
 - [x] Create the required Phase 1 documentation files, using the approved README managed-configuration template in place of the platform-restricted `.env.example` file.
 - [x] Create the private GitHub repository and configure the local project remote.
-- [x] Build the responsive DHRUV AI landing page with the navy, saffron, and green civic design system.
+- [x] Build the responsive MeraHaq AI landing page with the navy, saffron, and green civic design system.
 - [x] Implement the thin tricolor accent, compass/star brand mark, navigation, language selector, hero, question input, trust indicators, background decoration, and footer.
 - [x] Build the polished mock question, loading, answer, verification, citation, timeline, lineage graph, and document-detail experience without connecting real AI.
 - [x] Validate the landing page and mock experience at desktop, tablet, and mobile breakpoints, including focus, hover, loading, empty, error, and accessibility states.
@@ -30,3 +29,12 @@
 - [x] Generate and store sparse semantic profiles for chunks and queries so retrieval combines real lexical and semantic scores without overstating vector embedding support.
 - [x] Ingest one live official Jal Jeevan Mission amendment PDF, storing its byte hash, S3 object keys, page-aware text, metadata, chunks, and unresolved reference evidence.
 - [x] Document the approved secure managed-configuration substitution for `.env.example` in the README, including safe placeholders and the reason no environment file is committed.
+- [x] Audit all product-facing, documentation, metadata, and GitHub references that currently use DHRUV AI as the overall platform name.
+- [x] Define the semantic brand map: MeraHaq AI for the platform and DHRUV AI for the embedded policy assistant and RAG intelligence layer.
+- [x] Update landing-page identity, browser title, navigation, assistant entry point, and response experience without redesigning the existing civic interface.
+- [x] Update documentation, project metadata, comments, API descriptions, and GitHub repository identity where appropriate while preserving technically appropriate DHRUV AI module names.
+- [x] Add and run focused tests for the corrected public platform and assistant identity contract.
+- [ ] Run responsive visual checks, production build, GitHub commit, and push for the brand-hierarchy correction.
+- [x] Record the brand-hierarchy visual verification at desktop, tablet, and mobile breakpoints using an available capture path.
+- [ ] Stage, commit, and push the completed MeraHaq AI / DHRUV AI branding changes to GitHub, recording the commit hash.
+- [ ] Save the published checkpoint after successful visual validation and GitHub synchronization, then close the final branding milestone.

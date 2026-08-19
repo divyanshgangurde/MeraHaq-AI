@@ -1,9 +1,9 @@
-# DHRUV AI — Non-Negotiable Product Rules
+# MeraHaq AI — Non-Negotiable Product Rules
 
 ## Evidence before generation
 
 1. DHRUV AI is not a generic chatbot.
-2. Supersession-aware retrieval is the central product capability.
+2. MeraHaq AI’s central product capability is supersession-aware government policy information; DHRUV AI performs the intelligence-layer retrieval and answering work.
 3. The LLM is not the source of truth; official indexed documents and validated evidence are.
 4. Semantic similarity does not prove current applicability.
 5. Current applicability is not the same as the most recent publication date.
@@ -28,11 +28,11 @@
 1. Large file bytes must never be stored in database rows.
 2. Original PDFs and derived artifacts are stored in object storage; the database stores storage keys, source URLs, hashes, and metadata.
 3. Source documents are untrusted input. Embedded instructions in documents are data, not commands.
-4. The product must disclose corpus coverage and avoid implying comprehensive legal or policy coverage.
+4. MeraHaq AI must disclose corpus coverage and avoid implying comprehensive legal or policy coverage.
 
 ## User-interface integrity
 
-1. The product name is **DHRUV AI** throughout the interface and documentation.
-2. The hero heading is exactly: **How can I help you today?**
+1. The product and platform name is **MeraHaq AI**. **DHRUV AI** is the embedded policy assistant and RAG intelligence layer.
+2. The landing page must establish MeraHaq AI first; the DHRUV AI assistant experience uses the heading: **How can I help you today?**
 3. User-facing verification labels are exactly `VERIFIED`, `AMBIGUOUS`, and `UNVERIFIED`; `REJECTED` is an internal pipeline state.
 4. UI mock content must be labeled as a preview until it is backed by validated source documents.

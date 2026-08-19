@@ -13,7 +13,7 @@ export const appRouter = router({
   system: systemRouter,
   project: router({
     info: publicProcedure.query(() => ({
-      title: "DHRUV AI",
+      title: "MeraHaq AI",
     })),
   }),
   dhruv: router({

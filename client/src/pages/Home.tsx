@@ -132,17 +132,25 @@ export default function Home() {
             />
           </div>
           <p className="mt-7 text-xs font-extrabold uppercase tracking-[0.2em] text-[#6F7782]">
-            Civic policy research, evidence first
+            MeraHaq AI · Government policy platform
           </p>
           <h1 className="mx-auto mt-4 max-w-3xl text-[38px] font-extrabold leading-[1.08] tracking-[-0.04em] text-[#142B4A] sm:text-[48px] lg:text-[54px]">
-            How can I <span className="text-[#F4A51C]">help</span> you today?
+            Your right to <span className="text-[#F4A51C]">verified</span> policy information.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-[17px] leading-7 text-[#6F7782] sm:text-[19px]">
-            Ask me about any government scheme or policy and get the latest,
-            verified information.
+            Understand government schemes and policies with information that is
+            current, traceable, and checked against official sources.
           </p>
 
           <div className="mt-10">
+            <div className="mb-4 flex flex-col items-center gap-1.5">
+              <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#43A957]">
+                DHRUV AI · Your policy guide
+              </p>
+              <p className="text-lg font-extrabold tracking-[-0.02em] text-[#142B4A]">
+                How can I help you today?
+              </p>
+            </div>
             <QuestionComposer
               value={question}
               onChange={setQuestion}
@@ -213,7 +221,7 @@ export default function Home() {
               [
                 "01",
                 "Find official evidence",
-                "DHRUV AI is being designed to retrieve only documents that belong to the curated, traceable policy corpus.",
+                "DHRUV AI retrieves only documents that belong to MeraHaq AI’s curated, traceable policy corpus.",
               ],
               [
                 "02",

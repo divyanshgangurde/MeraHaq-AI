@@ -1,4 +1,4 @@
-# DHRUV AI — Verified Source Research Log
+# MeraHaq AI — Verified Source Research Log
 
 ## Candidate first vertical slice: PM-KISAN operational-guideline lineage
 
