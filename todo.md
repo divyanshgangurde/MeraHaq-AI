@@ -34,7 +34,7 @@
 - [x] Update landing-page identity, browser title, navigation, assistant entry point, and response experience without redesigning the existing civic interface.
 - [x] Update documentation, project metadata, comments, API descriptions, and GitHub repository identity where appropriate while preserving technically appropriate DHRUV AI module names.
 - [x] Add and run focused tests for the corrected public platform and assistant identity contract.
-- [ ] Run responsive visual checks, production build, GitHub commit, and push for the brand-hierarchy correction.
+- [x] Run responsive visual checks, production build, GitHub commit, and push for the brand-hierarchy correction.
 - [x] Record the brand-hierarchy visual verification at desktop, tablet, and mobile breakpoints using an available capture path.
-- [ ] Stage, commit, and push the completed MeraHaq AI / DHRUV AI branding changes to GitHub, recording the commit hash.
-- [ ] Save the published checkpoint after successful visual validation and GitHub synchronization, then close the final branding milestone.
+- [x] Stage, commit, and push the completed MeraHaq AI / DHRUV AI branding changes to GitHub, recording the commit hash: `8f51add`.
+- [x] Save the published checkpoint after successful visual validation and GitHub synchronization, then close the final branding milestone.
