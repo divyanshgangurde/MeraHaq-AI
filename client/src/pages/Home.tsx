@@ -3,6 +3,7 @@ import { MockAnswerCard } from "@/components/dhruv/MockAnswerCard";
 import { QuestionComposer } from "@/components/dhruv/QuestionComposer";
 import { TrustIndicator } from "@/components/dhruv/TrustIndicator";
 import {
+  AlertCircle,
   BookOpenCheck,
   FileText,
   Globe2,
@@ -12,19 +13,70 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { trpc } from "@/lib/trpc";
 
-type ViewState = "idle" | "loading" | "answer";
+type ViewState = "idle" | "loading" | "answer" | "error";
+type GroundedAnswer = {
+  answer: string;
+  verificationState: "VERIFIED" | "AMBIGUOUS" | "UNVERIFIED";
+  caution: string | null;
+  citations: Array<{
+    title: string;
+    sourceUrl: string;
+    pageStart: number;
+    pageEnd: number;
+    quote: string;
+    lineageStatus:
+      | "CURRENT_VERIFIED"
+      | "HISTORICAL"
+      | "AMBIGUOUS"
+      | "UNVERIFIED";
+  }>;
+};
 
 export default function Home() {
-  const [question, setQuestion] = useState("");
-  const [viewState, setViewState] = useState<ViewState>("idle");
+  const initialPreview =
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("preview");
+  const [question, setQuestion] = useState(() =>
+    initialPreview === "answer" || initialPreview === "loading"
+      ? "How does this policy change affect eligibility?"
+      : initialPreview === "error"
+        ? "AI"
+        : ""
+  );
+  const [viewState, setViewState] = useState<ViewState>(() =>
+    initialPreview === "answer" ||
+    initialPreview === "error" ||
+    initialPreview === "loading"
+      ? initialPreview
+      : "idle"
+  );
+  const [answer, setAnswer] = useState<GroundedAnswer | null>(null);
+  const answerMutation = trpc.dhruv.answer.useMutation();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!question.trim()) return;
 
+    if (question.trim().length < 5) {
+      setViewState("error");
+      return;
+    }
+
     setViewState("loading");
-    window.setTimeout(() => setViewState("answer"), 850);
+    setAnswer(null);
+    answerMutation.mutate(
+      { question: question.trim() },
+      {
+        onSuccess: result => {
+          setAnswer(result);
+          setViewState("answer");
+        },
+        onError: () => setViewState("error"),
+      }
+    );
   }
 
   return (
@@ -127,9 +179,30 @@ export default function Home() {
             </div>
           )}
 
+          {viewState === "error" && (
+            <div
+              role="alert"
+              className="mx-auto mt-10 flex max-w-[700px] items-start gap-3 rounded-2xl border border-[#F4A51C]/35 bg-[#FFF9EE] px-5 py-4 text-left shadow-[0_10px_30px_rgba(20,43,74,0.06)]"
+            >
+              <AlertCircle className="mt-0.5 size-5 shrink-0 text-[#D88900]" />
+              <div>
+                <p className="text-sm font-bold text-[#142B4A]">
+                  Add a little more policy context
+                </p>
+                <p className="mt-1 text-sm leading-6 text-[#6F7782]">
+                  Try naming a scheme, topic, or eligibility question so DHRUV
+                  AI can prepare the right evidence-first research flow.
+                </p>
+              </div>
+            </div>
+          )}
+
           {viewState === "answer" && (
             <div id="preview">
-              <MockAnswerCard question={question} />
+              <MockAnswerCard
+                question={question}
+                response={answer ?? undefined}
+              />
             </div>
           )}
         </section>

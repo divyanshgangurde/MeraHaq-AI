@@ -6,18 +6,25 @@
 - [x] Build the responsive DHRUV AI landing page with the navy, saffron, and green civic design system.
 - [x] Implement the thin tricolor accent, compass/star brand mark, navigation, language selector, hero, question input, trust indicators, background decoration, and footer.
 - [x] Build the polished mock question, loading, answer, verification, citation, timeline, lineage graph, and document-detail experience without connecting real AI.
-- [ ] Validate the landing page and mock experience at desktop, tablet, and mobile breakpoints, including focus, hover, loading, empty, error, and accessibility states.
-- [ ] Define the relational schema for schemes, documents, relationships, evidence, chunks, lineage assertions, and evaluation cases.
+- [x] Validate the landing page and mock experience at desktop, tablet, and mobile breakpoints, including focus, hover, loading, empty, error, and accessibility states.
+- [x] Define the relational schema for schemes, documents, relationships, evidence, chunks, lineage assertions, and evaluation cases.
 - [ ] Add controlled prototype records for three to five curated Indian policy chains, beginning with one verified real document chain.
-- [ ] Implement object-storage references for original PDFs and derived artifacts without storing file bytes in database rows.
-- [ ] Implement page-aware text extraction, metadata extraction, document-number/date normalization, and reference extraction.
-- [ ] Implement deterministic relationship detection for explicit amendment, supersession, corrigendum, replacement, revocation, extension, reference, and continuation language.
-- [ ] Implement evidence validation, ambiguity routing, and internal REJECTED states; never fabricate a relationship or citation.
-- [ ] Implement lineage graph construction and current-applicability determination distinct from publication-date ordering.
-- [ ] Implement lineage-aware hybrid retrieval, grounded answer generation, and citation validation.
-- [ ] Implement baseline-versus-DHRUV comparison and the evaluation engine for relationship, retrieval, citation, outdated-document, and abstention quality.
-- [ ] Add Vitest coverage for deterministic logic and critical backend contracts.
+- [x] Implement object-storage references for original PDFs and derived artifacts without storing file bytes in database rows.
+- [x] Implement page-aware text extraction, metadata extraction, document-number/date normalization, and reference extraction.
+- [x] Implement deterministic relationship detection for explicit amendment, supersession, corrigendum, replacement, revocation, extension, reference, and continuation language.
+- [x] Implement evidence validation, ambiguity routing, and internal REJECTED states; never fabricate a relationship or citation.
+- [x] Implement lineage graph construction and current-applicability determination distinct from publication-date ordering.
+- [x] Implement lineage-aware hybrid retrieval, grounded answer generation, and citation validation.
+- [x] Implement baseline-versus-DHRUV comparison and the evaluation engine for relationship, retrieval, citation, outdated-document, and abstention quality.
+- [x] Add Vitest coverage for deterministic logic and critical backend contracts.
 - [x] Run formatting, type checking, test, build, visual verification, and initial Git commit/push after each stable milestone.
 - [ ] Generate the requested `.env.example` through the managed secret configuration workflow when a safe non-secret template path is available.
 - [x] Add a clearly labeled mock citation and document-detail panel with source, page, quote, and URL placeholders that cannot be mistaken for verified policy evidence.
-- [ ] Complete and record tablet, keyboard-focus, hover, loading, empty, error, and accessible graph/timeline validation before closing the frontend milestone.
+- [x] Complete and record tablet, keyboard-focus, hover, loading, empty, error, and accessible graph/timeline validation before closing the frontend milestone.
+- [ ] Add and inspect a deterministic loading preview state, then record graph-node keyboard semantics and focus behavior in the validation notes.
+- [ ] Ingest the first official PM-KISAN document chain into object storage when the official source host permits a server-side connection; record byte hashes and page evidence.
+- [ ] Curate and ingest two to four additional official policy chains after source-level relationship evidence is verified.
+- [x] Wire PDF metadata and normalized document-number/date extraction into ingestion persistence and add test coverage.
+- [x] Persist uncertain relationship detections as explicit AMBIGUOUS or REJECTED outcomes and add tests for both paths.
+- [x] Build a concrete lineage graph output with nodes, edges, and current-applicability status, then add graph tests.
+- [x] Generate and store semantic chunk embeddings and query embeddings so retrieval combines real lexical and semantic scores.

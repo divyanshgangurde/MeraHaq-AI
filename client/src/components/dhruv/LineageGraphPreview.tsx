@@ -20,7 +20,11 @@ export function LineageGraphPreview() {
         <Network className="size-5 text-[#142B4A]" strokeWidth={1.7} />
       </div>
 
-      <div className="relative z-10 mt-8 grid items-center gap-3 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
+      <div
+        className="relative z-10 mt-8 grid items-center gap-3 md:grid-cols-[1fr_auto_1fr_auto_1fr]"
+        role="group"
+        aria-label="Interactive policy lineage preview"
+      >
         <GraphNode
           label="Historical document"
           tone="historical"
@@ -43,7 +47,11 @@ export function LineageGraphPreview() {
         />
       </div>
 
-      <div className="relative z-10 mt-6 rounded-2xl border border-[#E6E8EB] bg-white/80 p-3.5">
+      <div
+        id="lineage-selected-node"
+        className="relative z-10 mt-6 rounded-2xl border border-[#E6E8EB] bg-white/80 p-3.5"
+        aria-live="polite"
+      >
         <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#6F7782]">
           Selected node
         </p>
@@ -89,6 +97,8 @@ function GraphNode({
     <button
       type="button"
       onClick={onSelect}
+      aria-pressed={selected}
+      aria-controls="lineage-selected-node"
       className={`w-full rounded-2xl border px-3 py-4 text-center text-xs font-bold leading-5 shadow-[0_8px_20px_rgba(20,43,74,0.04)] transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#43A957] ${selected ? "ring-2 ring-[#43A957]/25" : ""} ${tones[tone]}`}
     >
       {label}
