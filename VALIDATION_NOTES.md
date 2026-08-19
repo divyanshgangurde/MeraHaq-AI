@@ -25,3 +25,23 @@ The rendered local landing page was inspected after the branding correction. Its
 Headless responsive captures at **1280 × 720** and **768 × 1024** confirm that the full navigation and compact-menu states preserve that same hierarchy. At both widths, the MeraHaq AI mark and platform label appear before the hero, and the DHRUV AI assistant label appears immediately above the question composer. No clipping, overlap, or contrast issue was observed in either captured view.
 
 The **375 × 812** mobile capture retains the MeraHaq AI mark, compact navigation control, readable platform label, and DHRUV AI assistant introduction above the composer. The hero and input remain within the viewport without clipping or overlap, completing desktop, tablet, and mobile verification for the branding correction.
+
+## Live DHRUV AI answer-path validation — 19 August 2026
+
+The browser-facing `dhruv.answer` route was exercised with a supported PM-KISAN question about the paragraph 8.1 amendment. It returned a grounded answer and a single citation to the official PM-KISAN amendment PDF at page 1. The response was correctly labeled `AMBIGUOUS` rather than claiming current applicability because the selected document’s lineage assertion is not `CURRENT_VERIFIED` in the indexed corpus.
+
+An out-of-corpus question about a fictional subsidy returned HTTP 200 with the deterministic DHRUV AI abstention message, `UNVERIFIED` state, a caution that no validated evidence packet was cited, and an empty citation list. The answer service was hardened so that any model output without a validated evidence ID is replaced by this abstention rather than being shown to the user.
+
+The same abstention result was confirmed from the browser context. A supported-answer browser-console call exceeded the console tool’s 30-second limit, while the endpoint completed through the standard HTTP path with a grounded PM-KISAN citation; the rendered landing page remained stable throughout that longer-running call.
+
+The visible MeraHaq AI composer was also submitted with the supported PM-KISAN question. It accepted the full question, entered the explicit evidence-first loading state, and retained the submitted text while the DHRUV AI response was being prepared.
+
+During that browser check, the supported-answer composer remained in its loading state beyond the first 35 seconds, although the same endpoint completed through the standard HTTP path with grounded evidence. The next refinement is therefore to provide a bounded, user-visible timeout and retry path rather than allowing an indefinite loading state.
+
+After the refinement, the visible composer displays **“DHRUV AI is checking official evidence and policy lineage…”** while the supported request is in flight. The request retains the submitted question and is configured to move to a retry state after the bounded response window instead of loading indefinitely.
+
+The visible supported-question flow subsequently completed with a real DHRUV AI response card. It displayed the PM-KISAN paragraph 8.1 amendment answer, an `AMBIGUOUS` verification badge, the current-applicability caution, the official PM-KISAN amendment source, page 1 reference, and a quote drawn from the indexed source text. This confirms that the MeraHaq AI composer uses the live answer route rather than a fabricated answer state.
+
+The same visible composer was then submitted with an out-of-corpus question about a fictional subsidy. It accepted the question and entered the DHRUV AI evidence-and-lineage loading state; the final response was monitored separately to confirm the user-facing abstention result.
+
+The out-of-corpus response completed as intended: it displayed the deterministic DHRUV AI abstention message, an `UNVERIFIED` badge, the explicit no-cited-evidence caution, and a citation ledger stating that no validated citation is available. It did not show any hypothetical rules, source URL, page number, quote, or relationship claim.

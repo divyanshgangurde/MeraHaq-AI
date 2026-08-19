@@ -12,10 +12,10 @@ import {
   Menu,
   ShieldCheck,
 } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { trpc } from "@/lib/trpc";
 
-type ViewState = "idle" | "loading" | "answer" | "error";
+type ViewState = "idle" | "loading" | "answer" | "error" | "timeout";
 type GroundedAnswer = {
   answer: string;
   verificationState: "VERIFIED" | "AMBIGUOUS" | "UNVERIFIED";
@@ -54,29 +54,66 @@ export default function Home() {
       : "idle"
   );
   const [answer, setAnswer] = useState<GroundedAnswer | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const answerMutation = trpc.dhruv.answer.useMutation();
+  const requestTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestIdRef = useRef(0);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!question.trim()) return;
+  function clearRequestTimeout() {
+    if (requestTimeoutRef.current) {
+      clearTimeout(requestTimeoutRef.current);
+      requestTimeoutRef.current = null;
+    }
+  }
 
-    if (question.trim().length < 5) {
+  useEffect(() => () => clearRequestTimeout(), []);
+
+  function submitQuestion(submittedQuestion: string) {
+    if (submittedQuestion.length < 5) {
+      setErrorMessage(
+        "Try naming a scheme, policy topic, or eligibility question so DHRUV AI can retrieve the right evidence."
+      );
       setViewState("error");
       return;
     }
 
+    clearRequestTimeout();
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    setErrorMessage(null);
     setViewState("loading");
     setAnswer(null);
+    requestTimeoutRef.current = setTimeout(() => {
+      if (requestIdRef.current === requestId) {
+        setViewState("timeout");
+      }
+    }, 25_000);
+
     answerMutation.mutate(
-      { question: question.trim() },
+      { question: submittedQuestion },
       {
         onSuccess: result => {
+          if (requestIdRef.current !== requestId) return;
+          clearRequestTimeout();
           setAnswer(result);
           setViewState("answer");
         },
-        onError: () => setViewState("error"),
+        onError: () => {
+          if (requestIdRef.current !== requestId) return;
+          clearRequestTimeout();
+          setErrorMessage(
+            "DHRUV AI could not complete this evidence check. Please try again in a moment."
+          );
+          setViewState("error");
+        },
       }
     );
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!question.trim()) return;
+    submitQuestion(question.trim());
   }
 
   return (
@@ -183,7 +220,7 @@ export default function Home() {
           {viewState === "loading" && (
             <div className="mx-auto mt-10 flex max-w-[700px] items-center justify-center gap-3 rounded-2xl border border-[#E6E8EB] bg-white px-5 py-4 text-sm font-bold text-[#142B4A] shadow-[0_10px_30px_rgba(20,43,74,0.06)]">
               <Loader2 className="size-5 animate-spin text-[#43A957]" />
-              Preparing the evidence-first preview...
+              DHRUV AI is checking official evidence and policy lineage...
             </div>
           )}
 
@@ -198,10 +235,36 @@ export default function Home() {
                   Add a little more policy context
                 </p>
                 <p className="mt-1 text-sm leading-6 text-[#6F7782]">
-                  Try naming a scheme, topic, or eligibility question so DHRUV
-                  AI can prepare the right evidence-first research flow.
+                  {errorMessage}
                 </p>
               </div>
+            </div>
+          )}
+
+          {viewState === "timeout" && (
+            <div
+              role="status"
+              className="mx-auto mt-10 flex max-w-[700px] flex-col gap-3 rounded-2xl border border-[#F4A51C]/35 bg-[#FFF9EE] px-5 py-4 text-left shadow-[0_10px_30px_rgba(20,43,74,0.06)] sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="flex gap-3">
+                <AlertCircle className="mt-0.5 size-5 shrink-0 text-[#D88900]" />
+                <div>
+                  <p className="text-sm font-bold text-[#142B4A]">
+                    The evidence check is taking longer than expected
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-[#6F7782]">
+                    Your question is still safe to retry. DHRUV AI will only show
+                    answers supported by indexed official evidence.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => submitQuestion(question.trim())}
+                className="shrink-0 rounded-xl bg-[#142B4A] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#1E3D66] active:scale-[0.97]"
+              >
+                Try again
+              </button>
             </div>
           )}
 

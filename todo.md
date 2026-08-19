@@ -37,4 +37,11 @@
 - [x] Run responsive visual checks, production build, GitHub commit, and push for the brand-hierarchy correction.
 - [x] Record the brand-hierarchy visual verification at desktop, tablet, and mobile breakpoints using an available capture path.
 - [x] Stage, commit, and push the completed MeraHaq AI / DHRUV AI branding changes to GitHub, recording the commit hash: `8f51add`.
-- [x] Save the published checkpoint after successful visual validation and GitHub synchronization, then close the final branding milestone.
+- [ ] Save the published checkpoint after successful visual validation and GitHub synchronization, then close the final branding milestone.
+- [x] Exercise the DHRUV AI policy-answering contract with supported, evidence-backed questions and inspect answer, citation, lineage, and verification outputs.
+- [x] Verify that the MeraHaq AI question composer uses the live DHRUV AI answer path rather than only mock response states; complete the wiring if needed.
+- [x] Add or refine focused tests for live-answer safety, including grounded citations and clear abstention outside the supported corpus.
+- [x] Record the end-to-end user-facing policy-answering validation results and any explicit corpus-coverage limitations.
+- [x] Add a bounded, accessible timeout and retry treatment for DHRUV AI requests that exceed the expected evidence-generation window.
+- [ ] Commit and push the DHRUV AI live-answer safety and timeout improvements to the MeraHaq-AI repository.
+- [x] Add a focused positive grounded-citation test for a supported answer, then re-run the full test suite before closing the live-answer safety task.

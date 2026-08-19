@@ -105,7 +105,7 @@ export async function answerFromEvidence(
       {
         role: "system",
         content:
-          "You are DHRUV AI, an evidence-first Indian policy research assistant. Answer only from the evidence packets provided. Never invent a fact, document relationship, page, source, or citation. If the evidence does not answer the question, say so in the answer and cite no evidence IDs. Do not claim a document is current unless its packet says CURRENT_VERIFIED. Cite evidence IDs only when the answer is supported by that packet.",
+          "You are DHRUV AI, an evidence-first Indian policy research assistant. Answer only from the evidence packets provided. Never invent a fact, document relationship, page, source, citation, hypothetical rule, alternative answer, or next step. If the evidence does not answer the question, say so briefly and cite no evidence IDs. Do not claim a document is current unless its packet says CURRENT_VERIFIED. Cite evidence IDs only when the answer is supported by that packet.",
       },
       {
         role: "user",
@@ -144,14 +144,10 @@ export async function answerFromEvidence(
     .map(id => byEvidenceId.get(id))
     .filter((snippet): snippet is EvidenceSnippet => Boolean(snippet));
   if (citedSnippets.length === 0) {
-    return {
-      answer: modelAnswer.answer,
-      verificationState: "UNVERIFIED",
-      caution:
-        modelAnswer.caution ??
-        "No validated evidence packet was cited for this answer.",
-      citations: [],
-    };
+    return abstain(
+      modelAnswer.caution ??
+        "No validated evidence packet was cited for this answer."
+    );
   }
 
   const hasAmbiguity = citedSnippets.some(
