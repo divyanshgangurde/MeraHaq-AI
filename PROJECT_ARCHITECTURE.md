@@ -28,13 +28,13 @@ flowchart TD
 
 Core domain logic is ordinary TypeScript in this repository: text normalization, reference parsing, relationship rules, candidate matching, lineage traversal, current-document determination, retrieval scoring, answer orchestration, citation validation, and evaluation. The following are adapter boundaries:
 
-| Adapter | Managed deployment implementation | Portable replacement |
-|---|---|---|
-| Database | Project relational database adapter | Any MySQL-compatible or PostgreSQL implementation |
-| File storage | Built-in object-storage helper | S3-compatible client |
-| Generation | Server-side model adapter | OpenAI-compatible or other model client |
-| Embeddings | OpenAI-compatible embedding adapter | Any provider that returns the configured dimensions |
-| Deployment | Managed application deployment | Container or Node hosting platform |
+| Adapter      | Managed deployment implementation   | Portable replacement                                |
+| ------------ | ----------------------------------- | --------------------------------------------------- |
+| Database     | Project relational database adapter | Any MySQL-compatible or PostgreSQL implementation   |
+| File storage | Built-in object-storage helper      | S3-compatible client                                |
+| Generation   | Server-side model adapter           | OpenAI-compatible or other model client             |
+| Embeddings   | OpenAI-compatible embedding adapter | Any provider that returns the configured dimensions |
+| Deployment   | Managed application deployment      | Container or Node hosting platform                  |
 
 No core lineage or policy decision may depend on a platform-only API.
 
@@ -42,20 +42,20 @@ No core lineage or policy decision may depend on a platform-only API.
 
 The managed project database is MySQL/TiDB-compatible rather than PostgreSQL, so PostgreSQL plus pgvector is not selected for the first implementation. The MVP does **not** introduce a separate vector database. Its corpus is intentionally small enough to use portable relational storage and deterministic application-side scoring.
 
-| Retrieval concern | MVP decision |
-|---|---|
-| Embedding protocol | OpenAI-compatible provider adapter |
-| Default model | `text-embedding-3-small`, configured through environment variables |
-| Embedding dimensions | 1536 |
-| Vector storage | `document_chunks.embedding_json` as a serialized numeric vector; no file bytes or provider response payloads in the database |
-| Semantic scoring | Application-side cosine similarity over metadata-filtered candidates |
-| Lexical scoring | Portable BM25-style score from normalized query terms and persisted chunk-term statistics |
-| Hybrid ranking | `0.55 × lexical_score + 0.45 × normalized_cosine_score` before lineage adjustment |
-| Candidate count | Keep the top 20 hybrid candidates before eligibility selection |
-| Chunking | Paragraph-aware, page-aware chunks of approximately 550 tokens with 80-token overlap; never cross a source-page boundary without recording the page range |
-| Metadata filtering | Scheme, issuing authority, document type, issue/effective date, source status, and question intent |
-| Reranking | Deterministic lineage and evidence score, not an LLM reranker in the MVP |
-| Current-answer rule | Prefer `CURRENT_VERIFIED`; return `AMBIGUOUS` separately with warning; exclude superseded/revoked evidence unless the user asks for history |
+| Retrieval concern    | MVP decision                                                                                                                                              |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Embedding protocol   | OpenAI-compatible provider adapter                                                                                                                        |
+| Default model        | `text-embedding-3-small`, configured through environment variables                                                                                        |
+| Embedding dimensions | 1536                                                                                                                                                      |
+| Vector storage       | `document_chunks.embedding_json` as a serialized numeric vector; no file bytes or provider response payloads in the database                              |
+| Semantic scoring     | Application-side cosine similarity over metadata-filtered candidates                                                                                      |
+| Lexical scoring      | Portable BM25-style score from normalized query terms and persisted chunk-term statistics                                                                 |
+| Hybrid ranking       | `0.55 × lexical_score + 0.45 × normalized_cosine_score` before lineage adjustment                                                                         |
+| Candidate count      | Keep the top 20 hybrid candidates before eligibility selection                                                                                            |
+| Chunking             | Paragraph-aware, page-aware chunks of approximately 550 tokens with 80-token overlap; never cross a source-page boundary without recording the page range |
+| Metadata filtering   | Scheme, issuing authority, document type, issue/effective date, source status, and question intent                                                        |
+| Reranking            | Deterministic lineage and evidence score, not an LLM reranker in the MVP                                                                                  |
+| Current-answer rule  | Prefer `CURRENT_VERIFIED`; return `AMBIGUOUS` separately with warning; exclude superseded/revoked evidence unless the user asks for history               |
 
 This design is testable and portable for the curated corpus. If scale demands indexed vector search later, `EmbeddingProvider` and `Retriever` interfaces can be implemented with PostgreSQL plus pgvector without changing the source, lineage, evidence, or answer contracts.
 
@@ -70,18 +70,18 @@ final_score  = hybrid_score + lineage_adjustment + evidence_adjustment
 
 ## 5. Relational model
 
-| Table | Role |
-|---|---|
-| `schemes` | Supported policy or scheme groups and coverage statement |
-| `documents` | Official-document identity, authority, source URL, storage key, hash, dates, and status |
-| `document_references` | Raw document numbers, dates, quoted language, and candidate-resolution state |
-| `document_relationships` | Directed lineage edges with allowed relationship labels and verification state |
-| `relationship_evidence` | Exact evidence quote, page/location, extraction method, and confidence |
-| `document_chunks` | Page-aware text chunks, serialized embedding, and retrieval metadata |
-| `chunk_terms` | Normalized lexical term statistics for portable BM25-style scoring |
-| `lineage_assertions` | Computed current/historical/ambiguous status with an explainable basis |
-| `evaluation_cases` | Gold questions and expected current documents, relationships, and citations |
-| `evaluation_runs` | Reproducible baseline and DHRUV AI outcomes and metrics |
+| Table                    | Role                                                                                    |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| `schemes`                | Supported policy or scheme groups and coverage statement                                |
+| `documents`              | Official-document identity, authority, source URL, storage key, hash, dates, and status |
+| `document_references`    | Raw document numbers, dates, quoted language, and candidate-resolution state            |
+| `document_relationships` | Directed lineage edges with allowed relationship labels and verification state          |
+| `relationship_evidence`  | Exact evidence quote, page/location, extraction method, and confidence                  |
+| `document_chunks`        | Page-aware text chunks, serialized embedding, and retrieval metadata                    |
+| `chunk_terms`            | Normalized lexical term statistics for portable BM25-style scoring                      |
+| `lineage_assertions`     | Computed current/historical/ambiguous status with an explainable basis                  |
+| `evaluation_cases`       | Gold questions and expected current documents, relationships, and citations             |
+| `evaluation_runs`        | Reproducible baseline and DHRUV AI outcomes and metrics                                 |
 
 Object storage holds original PDFs and derived artifacts. The database stores only storage keys, source URLs, metadata, and hashes.
 
@@ -125,14 +125,14 @@ The backend validates each citation against indexed source text before it can ap
 
 ## 8. API boundaries
 
-| API group | Purpose |
-|---|---|
-| `schemes` | List supported schemes and retrieve coverage details |
-| `documents` | Retrieve document metadata, sources, and page-aware evidence |
-| `lineage` | Return graph, timeline, current candidates, and edge evidence |
-| `qa` | Run baseline or lineage-aware answer orchestration |
-| `ingestion` | Future protected document upload and processing operations |
-| `evaluation` | Run curated cases and retrieve reproducible metrics |
+| API group    | Purpose                                                       |
+| ------------ | ------------------------------------------------------------- |
+| `schemes`    | List supported schemes and retrieve coverage details          |
+| `documents`  | Retrieve document metadata, sources, and page-aware evidence  |
+| `lineage`    | Return graph, timeline, current candidates, and edge evidence |
+| `qa`         | Run baseline or lineage-aware answer orchestration            |
+| `ingestion`  | Future protected document upload and processing operations    |
+| `evaluation` | Run curated cases and retrieve reproducible metrics           |
 
 ## 9. Delivery sequence
 

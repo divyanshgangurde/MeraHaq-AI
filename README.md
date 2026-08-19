@@ -10,13 +10,13 @@ The MVP will cover a small, curated corpus of three to five policy chains. It be
 
 ## Core capabilities
 
-| Capability | MVP behavior |
-|---|---|
-| Question answering | Provides a grounded response with only validated citations |
-| Policy lineage | Shows document nodes, evidence-backed relationships, and current/historical status |
-| Verification | Uses `VERIFIED`, `AMBIGUOUS`, `UNVERIFIED`, and internal `REJECTED` states |
-| Retrieval | Combines lexical and semantic candidates, then applies lineage-aware filtering and ranking |
-| Evaluation | Compares a baseline retrieval path against DHRUV AI on curated gold cases |
+| Capability         | MVP behavior                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| Question answering | Provides a grounded response with only validated citations                                 |
+| Policy lineage     | Shows document nodes, evidence-backed relationships, and current/historical status         |
+| Verification       | Uses `VERIFIED`, `AMBIGUOUS`, `UNVERIFIED`, and internal `REJECTED` states                 |
+| Retrieval          | Combines lexical and semantic candidates, then applies lineage-aware filtering and ranking |
+| Evaluation         | Compares a baseline retrieval path against DHRUV AI on curated gold cases                  |
 
 ## Local development
 
@@ -30,14 +30,14 @@ pnpm build
 
 ## Repository documents
 
-| File | Purpose |
-|---|---|
-| `PROJECT_CONTEXT.md` | Product purpose, scope, and terminology |
-| `MERAHAQ_RULES.md` | Non-negotiable evidence and safety rules |
-| `PROJECT_ARCHITECTURE.md` | Portable technical architecture and concrete retrieval design |
-| `DECISIONS.md` | Explicit architectural decisions and Manus-specific boundaries |
-| `MERAHAQ_DEMO_SCENARIO.md` | SIH demonstration target and acceptance criteria |
-| `.env.example` | Placeholder environment configuration with no secrets |
+| File                       | Purpose                                                        |
+| -------------------------- | -------------------------------------------------------------- |
+| `PROJECT_CONTEXT.md`       | Product purpose, scope, and terminology                        |
+| `MERAHAQ_RULES.md`         | Non-negotiable evidence and safety rules                       |
+| `PROJECT_ARCHITECTURE.md`  | Portable technical architecture and concrete retrieval design  |
+| `DECISIONS.md`             | Explicit architectural decisions and Manus-specific boundaries |
+| `MERAHAQ_DEMO_SCENARIO.md` | SIH demonstration target and acceptance criteria               |
+| `.env.example`             | Placeholder environment configuration with no secrets          |
 
 ## Portability
 

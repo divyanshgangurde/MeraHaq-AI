@@ -18,13 +18,13 @@ Every material answer must show the selected source documents, source location o
 
 ## Terminology
 
-| Term | Meaning |
-|---|---|
-| Candidate retrieval | Finding documents or chunks that may answer a question |
-| Lineage validation | Checking evidence-backed relationships between candidate documents |
-| Applicable evidence | Evidence eligible to support a current-answer claim |
-| Verification state | `VERIFIED`, `AMBIGUOUS`, `UNVERIFIED`, or internal `REJECTED` |
-| Lineage graph | Documents as nodes and evidence-backed relationships as directed edges |
+| Term                | Meaning                                                                |
+| ------------------- | ---------------------------------------------------------------------- |
+| Candidate retrieval | Finding documents or chunks that may answer a question                 |
+| Lineage validation  | Checking evidence-backed relationships between candidate documents     |
+| Applicable evidence | Evidence eligible to support a current-answer claim                    |
+| Verification state  | `VERIFIED`, `AMBIGUOUS`, `UNVERIFIED`, or internal `REJECTED`          |
+| Lineage graph       | Documents as nodes and evidence-backed relationships as directed edges |
 
 ## Initial development sequence
 

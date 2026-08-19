@@ -32,11 +32,11 @@ DHRUV AI returns a grounded answer with citations and a policy history graph
 
 No document names, numbers, dates, relationships, citations, or policy changes are invented in this scenario. Before the real vertical slice is implemented, the selected chain must be verified from official government sources and entered below.
 
-| Required document | Official source URL | Document number | Authority | Publication date | Validated relationship evidence |
-|---|---|---|---|---|---|
-| Original instrument | Pending official-source validation | Pending | Pending | Pending | Not applicable |
-| Later amendment/modification | Pending official-source validation | Pending | Pending | Pending | Pending exact quote and page |
-| Corrigendum/replacement/extension/follow-up | Pending official-source validation | Pending | Pending | Pending | Pending exact quote and page |
+| Required document                           | Official source URL                | Document number | Authority | Publication date | Validated relationship evidence |
+| ------------------------------------------- | ---------------------------------- | --------------- | --------- | ---------------- | ------------------------------- |
+| Original instrument                         | Pending official-source validation | Pending         | Pending   | Pending          | Not applicable                  |
+| Later amendment/modification                | Pending official-source validation | Pending         | Pending   | Pending          | Pending exact quote and page    |
+| Corrigendum/replacement/extension/follow-up | Pending official-source validation | Pending         | Pending   | Pending          | Pending exact quote and page    |
 
 ## Planned user question
 
@@ -50,14 +50,14 @@ The baseline retrieves the historical document because it is semantically close 
 
 DHRUV AI displays the following only after source validation:
 
-| Output | Acceptance condition |
-|---|---|
-| Applicable answer | Grounded only in selected evidence |
-| Verification state | `VERIFIED`, `AMBIGUOUS`, or `UNVERIFIED` based on stored evidence |
-| Citation | Resolves to an indexed official document, page/location, quote, and source URL |
-| Policy history | Shows the original, follow-up instruments, relationship labels, and evidence |
-| Graph | Highlights historical, current, and ambiguous nodes/edges distinctly |
-| Warning | Appears whenever scope or current applicability remains uncertain |
+| Output             | Acceptance condition                                                           |
+| ------------------ | ------------------------------------------------------------------------------ |
+| Applicable answer  | Grounded only in selected evidence                                             |
+| Verification state | `VERIFIED`, `AMBIGUOUS`, or `UNVERIFIED` based on stored evidence              |
+| Citation           | Resolves to an indexed official document, page/location, quote, and source URL |
+| Policy history     | Shows the original, follow-up instruments, relationship labels, and evidence   |
+| Graph              | Highlights historical, current, and ambiguous nodes/edges distinctly           |
+| Warning            | Appears whenever scope or current applicability remains uncertain              |
 
 ## Demo acceptance criteria
 

@@ -13,10 +13,17 @@ const accentClasses = {
   navy: "bg-[#EFF4FA] text-[#142B4A]",
 };
 
-export function TrustIndicator({ icon: Icon, title, description, accent }: TrustIndicatorProps) {
+export function TrustIndicator({
+  icon: Icon,
+  title,
+  description,
+  accent,
+}: TrustIndicatorProps) {
   return (
     <div className="flex min-w-0 items-center gap-3 text-left">
-      <span className={`grid size-10 shrink-0 place-items-center rounded-full ${accentClasses[accent]}`}>
+      <span
+        className={`grid size-10 shrink-0 place-items-center rounded-full ${accentClasses[accent]}`}
+      >
         <Icon className="size-[19px]" strokeWidth={1.9} />
       </span>
       <div>
