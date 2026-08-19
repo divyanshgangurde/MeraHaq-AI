@@ -49,3 +49,4 @@
 - [ ] Create a current managed checkpoint and publish the updated MeraHaq AI platform release to the production domain.
 - [ ] Verify the production domain presents MeraHaq AI as the platform and DHRUV AI as the embedded assistant.
 - [x] Create a self-contained handoff brief for a new chat, including repository state, architecture, validated behavior, production blocker, and prioritized next steps: `NEXT_CHAT_HANDOFF.md`.
+- [x] Update `NEXT_CHAT_HANDOFF.md` with repository migration steps and the managed configuration that must be recreated in a destination account.

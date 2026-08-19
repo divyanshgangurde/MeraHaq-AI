@@ -112,6 +112,32 @@ Full records are in `VALIDATION_NOTES.md`.
 - Do not present PMFBY or e-NAM as verified chains; they are candidates only.
 - Do not silently suppress the production publishing block. The source is current, but the managed live deployment is not until a checkpoint succeeds.
 
+## Moving to a new repository or Manus account
+
+Creating a new private repository is a valid workaround when the current project’s managed GitHub connection cannot be repaired. The source and Git history can be copied with the following commands; replace the destination URL with the repository created in the destination GitHub account.
+
+```bash
+git clone https://github.com/divyanshgangurde/MeraHaq-AI.git
+cd MeraHaq-AI
+git remote rename origin old-origin
+git remote add origin https://github.com/DESTINATION-ACCOUNT/NEW-REPOSITORY.git
+git push -u origin main
+```
+
+In the destination account, create a new full-stack project from that repository and provide this handoff brief to the next chat. The source code will move, but managed configuration, database content, source objects, and deployment metadata are account-specific and must be recreated deliberately.
+
+| Destination setup item | Required action |
+| --- | --- |
+| Repository connection | Connect the new project to the new repository at creation time and verify project-level GitHub authorization before the first checkpoint. |
+| Managed secrets | Reconfigure the platform-provided values and set `VITE_APP_TITLE=MeraHaq AI`. Never copy `.env` files or secrets into Git. |
+| Database schema | Apply the schema and migrations in the destination project before using the assistant. Do not assume source database rows migrate with the repository. |
+| Policy corpus | Re-ingest the official source PDFs or export/import approved metadata through a controlled process. Object-storage files are not transferred by Git. |
+| OAuth | Update the destination project’s production callback URL in its OAuth configuration. |
+| Static and generated artifacts | Keep deployment assets outside the repository or use configured object storage; do not add large PDFs or media files to source control. |
+| Production release | Run `pnpm check`, `pnpm test`, and `pnpm build`, then create a successful managed checkpoint before treating the destination production domain as current. |
+
+The minimum safe order is: **copy the repository → create the destination full-stack project → configure secrets and OAuth → apply schema → re-ingest or migrate approved policy data → validate supported and out-of-corpus answers → create a managed checkpoint → verify production branding and behavior.**
+
 ## Recent Git history
 
 ```text
