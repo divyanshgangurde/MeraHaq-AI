@@ -1060,6 +1060,140 @@ async function listSupportedPolicyDocuments() {
   }).from(documents).innerJoin(schemes, eq2(documents.schemeId, schemes.id)).where(eq2(schemes.coverageStatus, "supported")).orderBy(desc(documents.issuedOn));
 }
 
+// server/dhruv/lineageOverview.ts
+import { eq as eq3, inArray } from "drizzle-orm";
+
+// server/dhruv/lineage.ts
+var invalidatingRelationships = /* @__PURE__ */ new Set([
+  "SUPERSEDES",
+  "REPLACES",
+  "REVOKES"
+]);
+function determineLineageStatus(documents2, relationships) {
+  const status = /* @__PURE__ */ new Map();
+  for (const document of documents2) {
+    status.set(
+      document.id,
+      document.isOfficial ? "CURRENT_VERIFIED" : "UNVERIFIED"
+    );
+  }
+  for (const relationship of relationships) {
+    if (relationship.verificationState === "AMBIGUOUS") {
+      const current = status.get(relationship.targetDocumentId);
+      if (current !== "HISTORICAL")
+        status.set(relationship.targetDocumentId, "AMBIGUOUS");
+      continue;
+    }
+    if (relationship.verificationState !== "VERIFIED") continue;
+    if (invalidatingRelationships.has(relationship.relationshipType)) {
+      status.set(relationship.targetDocumentId, "HISTORICAL");
+    }
+  }
+  return status;
+}
+function buildLineageGraph(documents2, relationships) {
+  const statuses = determineLineageStatus(documents2, relationships);
+  return {
+    nodes: documents2.map((document) => ({
+      id: document.id,
+      title: document.title,
+      issuedOn: document.issuedOn ?? null,
+      status: statuses.get(document.id) ?? "UNVERIFIED",
+      isOfficial: document.isOfficial
+    })).sort((left, right) => left.id - right.id),
+    edges: relationships.filter((relationship) => relationship.verificationState !== "REJECTED").map((relationship) => ({
+      sourceDocumentId: relationship.sourceDocumentId,
+      targetDocumentId: relationship.targetDocumentId,
+      relationshipType: relationship.relationshipType,
+      verificationState: relationship.verificationState,
+      confidence: relationship.confidence
+    }))
+  };
+}
+
+// server/dhruv/lineageOverview.ts
+async function getLineageOverview() {
+  const db = await getDb();
+  if (!db) return [];
+  const supportedSchemes = await db.select({ id: schemes.id, slug: schemes.slug, name: schemes.name }).from(schemes).where(eq3(schemes.coverageStatus, "supported"));
+  if (supportedSchemes.length === 0) return [];
+  const schemeIds = supportedSchemes.map((scheme) => scheme.id);
+  const docs = await db.select({
+    id: documents.id,
+    schemeId: documents.schemeId,
+    title: documents.title,
+    documentType: documents.documentType,
+    issuingAuthority: documents.issuingAuthority,
+    issuedOn: documents.issuedOn,
+    sourceUrl: documents.sourceUrl,
+    isOfficial: documents.isOfficial
+  }).from(documents).where(inArray(documents.schemeId, schemeIds));
+  if (docs.length === 0) return [];
+  const docIds = docs.map((doc) => doc.id);
+  const rels = await db.select({
+    sourceDocumentId: documentRelationships.sourceDocumentId,
+    targetDocumentId: documentRelationships.targetDocumentId,
+    relationshipType: documentRelationships.relationshipType,
+    verificationState: documentRelationships.verificationState,
+    confidence: documentRelationships.confidence,
+    scope: documentRelationships.scope
+  }).from(documentRelationships).where(inArray(documentRelationships.sourceDocumentId, docIds));
+  return supportedSchemes.map((scheme) => {
+    const schemeDocs = docs.filter((doc) => doc.schemeId === scheme.id);
+    const schemeDocIds = new Set(schemeDocs.map((doc) => doc.id));
+    const schemeRels = rels.filter(
+      (rel) => schemeDocIds.has(rel.sourceDocumentId) && schemeDocIds.has(rel.targetDocumentId)
+    );
+    const graph = buildLineageGraph(
+      schemeDocs.map(
+        (doc) => ({
+          id: doc.id,
+          schemeId: doc.schemeId,
+          title: doc.title,
+          sourceUrl: doc.sourceUrl,
+          issuedOn: doc.issuedOn,
+          isOfficial: doc.isOfficial
+        })
+      ),
+      schemeRels.map(
+        (rel) => ({
+          sourceDocumentId: rel.sourceDocumentId,
+          targetDocumentId: rel.targetDocumentId,
+          relationshipType: rel.relationshipType,
+          verificationState: rel.verificationState,
+          confidence: rel.confidence,
+          evidenceText: rel.scope ?? ""
+        })
+      )
+    );
+    const docById = new Map(schemeDocs.map((doc) => [doc.id, doc]));
+    return {
+      schemeSlug: scheme.slug,
+      schemeName: scheme.name,
+      nodes: graph.nodes.map((node) => {
+        const doc = docById.get(node.id);
+        return {
+          id: node.id,
+          title: node.title,
+          documentType: doc?.documentType ?? "other",
+          issuingAuthority: doc?.issuingAuthority ?? "",
+          issuedOn: doc?.issuedOn ? doc.issuedOn.toISOString() : null,
+          sourceUrl: doc?.sourceUrl ?? "",
+          isOfficial: node.isOfficial,
+          status: node.status
+        };
+      }),
+      edges: graph.edges.map((edge) => ({
+        sourceDocumentId: edge.sourceDocumentId,
+        targetDocumentId: edge.targetDocumentId,
+        relationshipType: edge.relationshipType,
+        verificationState: edge.verificationState,
+        confidence: edge.confidence
+      }))
+    };
+  }).filter((scheme) => scheme.nodes.length > 0);
+}
+
 // server/dhruv/curatedChains.ts
 var curatedChains = [
   {
@@ -1158,7 +1292,7 @@ var curatedChains = [
 ];
 
 // server/dhruv/answering.ts
-import { and, eq as eq3 } from "drizzle-orm";
+import { and, eq as eq4 } from "drizzle-orm";
 
 // server/_core/llm.ts
 var ensureArray = (value) => Array.isArray(value) ? value : [value];
@@ -1749,11 +1883,11 @@ async function answerPolicyQuestion(input) {
     isOfficial: documents.isOfficial,
     assertionStatus: lineageAssertions.status,
     schemeSlug: schemes.slug
-  }).from(documentChunks).innerJoin(documents, eq3(documentChunks.documentId, documents.id)).innerJoin(schemes, eq3(documents.schemeId, schemes.id)).leftJoin(lineageAssertions, eq3(lineageAssertions.documentId, documents.id)).where(
+  }).from(documentChunks).innerJoin(documents, eq4(documentChunks.documentId, documents.id)).innerJoin(schemes, eq4(documents.schemeId, schemes.id)).leftJoin(lineageAssertions, eq4(lineageAssertions.documentId, documents.id)).where(
     input.schemeSlug ? and(
-      eq3(schemes.slug, input.schemeSlug),
-      eq3(documents.processingState, "indexed")
-    ) : eq3(documents.processingState, "indexed")
+      eq4(schemes.slug, input.schemeSlug),
+      eq4(documents.processingState, "indexed")
+    ) : eq4(documents.processingState, "indexed")
   ).limit(240);
   const queryProfile = await createSemanticProfile(input.question);
   const queryEmbeddings = await createEmbeddings([input.question]);
@@ -1803,7 +1937,7 @@ async function answerPolicyQuestion(input) {
 // server/dhruv/ingestion.ts
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { and as and2, eq as eq4 } from "drizzle-orm";
+import { and as and2, eq as eq5 } from "drizzle-orm";
 
 // server/dhruv/relationshipRules.ts
 var deterministicRules = [
@@ -2060,7 +2194,7 @@ async function ingestOfficialPdf(input) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const url = assertOfficialPdfUrl(input.sourceUrl);
-  const scheme = await db.select().from(schemes).where(eq4(schemes.slug, input.schemeSlug)).limit(1);
+  const scheme = await db.select().from(schemes).where(eq5(schemes.slug, input.schemeSlug)).limit(1);
   if (!scheme[0]) throw new Error(`Unknown scheme: ${input.schemeSlug}`);
   const runResult = await db.insert(ingestionRuns).values({
     sourceUrl: url.toString(),
@@ -2071,14 +2205,14 @@ async function ingestOfficialPdf(input) {
   try {
     const pdfBytes = input.localBytesPath ? await readLocalPdfBytes(input.localBytesPath) : await downloadPdf(url.toString());
     const documentHash = createHash("sha256").update(pdfBytes).digest("hex");
-    const existing = await db.select().from(documents).where(eq4(documents.documentHash, documentHash)).limit(1);
+    const existing = await db.select().from(documents).where(eq5(documents.documentHash, documentHash)).limit(1);
     if (existing[0]) {
       await db.update(ingestionRuns).set({
         state: "completed",
         documentId: existing[0].id,
         completedAt: /* @__PURE__ */ new Date(),
         steps: [{ stage: "deduplicated", at: (/* @__PURE__ */ new Date()).toISOString() }]
-      }).where(eq4(ingestionRuns.id, runId));
+      }).where(eq5(ingestionRuns.id, runId));
       return { document: existing[0], deduplicated: true };
     }
     const extracted = await extractPageAwareText(pdfBytes);
@@ -2130,8 +2264,8 @@ async function ingestOfficialPdf(input) {
     if (input.relatedDocumentId) {
       const related = await db.select().from(documents).where(
         and2(
-          eq4(documents.id, input.relatedDocumentId),
-          eq4(documents.schemeId, scheme[0].id)
+          eq5(documents.id, input.relatedDocumentId),
+          eq5(documents.schemeId, scheme[0].id)
         )
       ).limit(1);
       if (!related[0]) {
@@ -2262,9 +2396,9 @@ async function ingestOfficialPdf(input) {
         { stage: "indexed", at: (/* @__PURE__ */ new Date()).toISOString() }
       ]
     }).where(
-      and2(eq4(ingestionRuns.id, runId), eq4(ingestionRuns.state, "processing"))
+      and2(eq5(ingestionRuns.id, runId), eq5(ingestionRuns.state, "processing"))
     );
-    const inserted = await db.select().from(documents).where(eq4(documents.id, documentId)).limit(1);
+    const inserted = await db.select().from(documents).where(eq5(documents.id, documentId)).limit(1);
     return { document: inserted[0], deduplicated: false };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown ingestion failure";
@@ -2273,7 +2407,7 @@ async function ingestOfficialPdf(input) {
       errorSummary: message,
       completedAt: /* @__PURE__ */ new Date(),
       steps: [{ stage: "failed", at: (/* @__PURE__ */ new Date()).toISOString(), message }]
-    }).where(eq4(ingestionRuns.id, runId));
+    }).where(eq5(ingestionRuns.id, runId));
     throw error;
   }
 }
@@ -2288,6 +2422,7 @@ var appRouter = router({
   }),
   dhruv: router({
     catalog: publicProcedure.query(() => listSupportedPolicyDocuments()),
+    lineage: publicProcedure.query(() => getLineageOverview()),
     curationManifest: publicProcedure.query(() => curatedChains),
     answer: publicProcedure.input(
       z2.object({

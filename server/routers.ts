@@ -5,6 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { listSupportedPolicyDocuments } from "./dhruv/catalog";
+import { getLineageOverview } from "./dhruv/lineageOverview";
 import { curatedChains } from "./dhruv/curatedChains";
 import { answerPolicyQuestion } from "./dhruv/answering";
 import { ingestOfficialPdf } from "./dhruv/ingestion";
@@ -18,6 +19,7 @@ export const appRouter = router({
   }),
   dhruv: router({
     catalog: publicProcedure.query(() => listSupportedPolicyDocuments()),
+    lineage: publicProcedure.query(() => getLineageOverview()),
     curationManifest: publicProcedure.query(() => curatedChains),
     answer: publicProcedure
       .input(
