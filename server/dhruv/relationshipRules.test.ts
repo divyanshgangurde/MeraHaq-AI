@@ -38,6 +38,32 @@ describe("DHRUV AI deterministic relationship and evidence rules", () => {
     ).toMatchObject({ state: "MATCHED", relationshipType: "AMENDS" });
   });
 
+  it("does not treat topical 'extension' prose as a lineage relationship", () => {
+    // Regression (2026-10-26): this exact sentence from the NLM 2025
+    // comprehensive guidelines' livestock-insurance section produced a
+    // VERIFIED EXTENDS edge to the 2021 guidelines. "Extension" here is
+    // the name of a sub-mission, not a claim about the document.
+    const detection = detectDeterministicRelationship(
+      "In order to generate confidence among the farmers about the efficacy of the Risk Management & Insurance as component of sub-mission on innovation and extension of NLM, it is important that the policy cover should take effect."
+    );
+    expect(detection.state).not.toBe("MATCHED");
+  });
+
+  it("still classifies an explicit extension of the guidelines", () => {
+    expect(
+      detectDeterministicRelationship(
+        "The validity of the operational guidelines is extended until 31 March 2028."
+      )
+    ).toMatchObject({ state: "MATCHED", relationshipType: "EXTENDS" });
+  });
+
+  it("does not treat bare 'continued' prose as continuation of a document", () => {
+    const detection = detectDeterministicRelationship(
+      "The State shall ensure continued support to the entrepreneurs under the mission."
+    );
+    expect(detection.state).not.toBe("MATCHED");
+  });
+
   it("rejects a relationship evidence quote that is absent from indexed source text", () => {
     const result = validateEvidenceQuote({
       sourceText: "The official document has no matching statement.",

@@ -65,13 +65,26 @@ const deterministicRules: Rule[] = [
   },
   {
     relationshipType: "EXTENDS",
-    pattern: /\b(?:extends|extended until|extension of)\b/i,
+    // Anchored to a document/period object on purpose. Bare "extension
+    // of" matched topical prose in long guidelines — the NLM 2025
+    // comprehensive guidelines earned a VERIFIED EXTENDS edge from the
+    // sentence "sub-mission on innovation and extension of NLM"
+    // (livestock-insurance section), which says nothing about this
+    // document extending another. Agricultural "extension" is a domain
+    // topic, not lineage language, unless its object is the guideline,
+    // scheme/mission, or a validity period.
+    pattern:
+      /\b(?:extends the (?:guidelines|validity|scheme|mission)|extended until|extension of (?:the )?(?:guidelines|validity|scheme period|mission period))\b/i,
     confidence: 0.96,
     reason: "Explicit extension language",
   },
   {
     relationshipType: "CONTINUES",
-    pattern: /\b(?:shall continue|continues to remain in force|continued)\b/i,
+    // Bare "continued" removed for the same reason as EXTENDS above:
+    // topical prose in long guidelines ("continued support shall…")
+    // is not a statement that a document continues another document.
+    pattern:
+      /\b(?:shall continue to remain in force|continues to remain in force|shall remain in force)\b/i,
     confidence: 0.94,
     reason: "Explicit continuation language",
   },

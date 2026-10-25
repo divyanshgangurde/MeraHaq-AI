@@ -212,7 +212,15 @@ export async function answerPolicyQuestion(input: {
           )
         : eq(documents.processingState, "indexed")
     )
-    .limit(240);
+    // Ranking happens in memory over the full indexed corpus. This cap
+    // must stay far above the chunk count: at 240 it silently excluded
+    // every chunk past the first 240 rows, which made whole documents
+    // invisible to answers once the corpus grew past it — observed live
+    // on 2026-10-26 when the newly ingested PM-KISAN revision and NLM
+    // comprehensive guidelines (chunks 330–582) could never be cited.
+    // A silently incomplete candidate pool is the retrieval version of
+    // the stale-corpus failure: grounded, confident, and wrong.
+    .limit(10000);
 
   const queryProfile = await createSemanticProfile(input.question);
   const queryEmbeddings = await createEmbeddings([input.question]);
