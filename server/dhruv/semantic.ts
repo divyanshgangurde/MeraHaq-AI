@@ -1,4 +1,5 @@
 import { invokeLLM } from "../_core/llm";
+import { ENV } from "../_core/env";
 import { normalizeText } from "./normalization";
 
 export type SemanticProfile = { terms: string[] };
@@ -30,7 +31,7 @@ export async function createSemanticProfile(
   if (!normalized) return { terms: [] };
   try {
     const response = await invokeLLM({
-      model: "gpt-5-mini",
+      model: ENV.llmModel,
       messages: [
         {
           role: "system",

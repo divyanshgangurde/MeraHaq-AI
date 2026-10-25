@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   assertOfficialPdfUrl,
+  assertPdfBytes,
   extractDocumentMetadata,
   referenceResolution,
   relationshipVerificationState,
@@ -13,6 +14,18 @@ describe("DHRUV AI official-source ingestion guard", () => {
         "https://pmkisan.gov.in/Documents/OPERATIONAL%20GUIDELINES.pdf"
       ).hostname
     ).toBe("pmkisan.gov.in");
+  });
+
+  it("validates PDF bytes supplied from a local byte cache", () => {
+    expect(
+      assertPdfBytes(Buffer.from("%PDF-1.5\nlocal cache bytes")).byteLength
+    ).toBeGreaterThan(0);
+    expect(() => assertPdfBytes(Buffer.from("not a pdf"))).toThrow(
+      "File does not have a PDF signature"
+    );
+    expect(() => assertPdfBytes(Buffer.alloc(0))).toThrow(
+      "PDF is empty or exceeds the configured size limit"
+    );
   });
 
   it("rejects a non-government source before any file is fetched", () => {

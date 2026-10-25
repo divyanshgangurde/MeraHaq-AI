@@ -44,7 +44,7 @@ export const curatedChains: CuratedChain[] = [
     status: "VERIFIED_SOURCE_CHAIN",
     sourceArchiveUrl: "https://pmkisan.gov.in/",
     notes:
-      "The original operational guidelines and paragraph 8.1 amendment are indexed. The AMENDS edge is supported by the indexed phrase ‘have further been amended and shall be read as follows.’",
+      "The original operational guidelines and paragraph 8.1 amendment are indexed. The AMENDS edge is supported by the indexed phrase ‘have further been amended and shall be read as follows.’ Link status 2026-10-25: both URLs are live (verified loading in a real browser), but pmkisan.gov.in drops direct fetches from some datacenter networks (empty reply), so the local seed retrieves authentic bytes via Internet Archive snapshots of these exact official URLs (see data/source-cache/manifest.json).",
     documents: [
       {
         title:
@@ -70,7 +70,7 @@ export const curatedChains: CuratedChain[] = [
     status: "VERIFIED_SOURCE_CHAIN",
     sourceArchiveUrl: "https://dahd.gov.in/en/node/345",
     notes:
-      "The July 2021 operational guidelines and the 28 December 2022 amendment order are indexed. The amendment’s explicit subject and reference to the 2021 guidelines support the verified AMENDS edge.",
+      "The July 2021 operational guidelines and the 28 December 2022 amendment order are indexed. The amendment’s explicit subject and reference to the 2021 guidelines support the verified AMENDS edge. Link status 2026-10-25: both dahd.gov.in URLs below now return 404 since the DAHD site rebuild. The guideline's bytes were recovered from an Internet Archive snapshot of the official URL (see data/source-cache/manifest.json). The amendment order (R-99014/45/2021-Anlm_Dadf, 28 Dec 2022) currently survives only on the official NLM portal, nlm.udyamimitra.in, which the gov.in/nic.in-only ingestion rule excludes, and the file is a scanned PDF; local re-ingestion of the amendment is pending a decision on that exception.",
     documents: [
       {
         title: "Operational Guidelines for National Livestock Mission",
