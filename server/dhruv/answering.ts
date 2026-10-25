@@ -6,7 +6,8 @@ import {
   schemes,
 } from "../../drizzle/schema";
 import { getDb } from "../db";
-import { invokeLLM } from "../_core/llm";
+import { createEmbeddings, invokeLLM } from "../_core/llm";
+import { ENV } from "../_core/env";
 import type { CitationCandidate, LineageStatus } from "./domain";
 import { rankCandidates } from "./retrieval";
 import { validateCitation } from "./citationValidation";
@@ -99,8 +100,10 @@ export async function answerFromEvidence(
     )
     .join("\n\n---\n\n");
 
-  const response = await invokeLLM({
-    model: "gpt-5-mini",
+  let response;
+  try {
+    response = await invokeLLM({
+    model: ENV.llmModel,
     messages: [
       {
         role: "system",
@@ -129,7 +132,12 @@ export async function answerFromEvidence(
         },
       },
     },
-  });
+    });
+  } catch {
+    return abstain(
+      "The answer generator is unavailable (LLM provider not configured or unreachable), so this question cannot be verified right now."
+    );
+  }
 
   const modelAnswer = readModelJson(response.choices[0]?.message.content);
   if (!modelAnswer)
@@ -207,10 +215,21 @@ export async function answerPolicyQuestion(input: {
     .limit(240);
 
   const queryProfile = await createSemanticProfile(input.question);
+  const queryEmbeddings = await createEmbeddings([input.question]);
+  const queryEmbedding = queryEmbeddings?.[0] ?? null;
   const candidates = rows.map(row => ({
     documentId: row.documentId,
     content: row.content,
-    embedding: null,
+    embedding:
+      typeof row.embeddingJson === "object" &&
+      row.embeddingJson !== null &&
+      Array.isArray((row.embeddingJson as { embedding?: unknown }).embedding)
+        ? (
+            row.embeddingJson as { embedding: unknown[] }
+          ).embedding.filter(
+            (value): value is number => typeof value === "number"
+          )
+        : null,
     semanticTerms:
       typeof row.embeddingJson === "object" &&
       row.embeddingJson !== null &&
@@ -224,7 +243,7 @@ export async function answerPolicyQuestion(input: {
   }));
   const ranked = rankCandidates(
     input.question,
-    null,
+    queryEmbedding,
     candidates,
     queryProfile.terms
   ).slice(0, 6);

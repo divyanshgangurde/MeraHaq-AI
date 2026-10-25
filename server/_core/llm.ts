@@ -212,14 +212,34 @@ const normalizeToolChoice = (
   return toolChoice;
 };
 
-const resolveApiUrl = () =>
-  ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
-    ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`
-    : "https://forge.manus.im/v1/chat/completions";
+const DEFAULT_LLM_BASE_URL = "https://openrouter.ai/api/v1";
+
+// Provider resolution order: explicit LLM_BASE_URL, then legacy Manus Forge,
+// then OpenRouter. Base URLs are expected to already include the API version
+// segment (e.g. https://openrouter.ai/api/v1), except the legacy Forge URL,
+// which historically had /v1 appended by this module.
+const resolveBaseUrl = (): { base: string; legacyForge: boolean } => {
+  if (ENV.llmBaseUrl && ENV.llmBaseUrl.trim().length > 0) {
+    return { base: ENV.llmBaseUrl.replace(/\/$/, ""), legacyForge: false };
+  }
+  if (ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0) {
+    return { base: ENV.forgeApiUrl.replace(/\/$/, ""), legacyForge: true };
+  }
+  return { base: DEFAULT_LLM_BASE_URL, legacyForge: false };
+};
+
+const resolveApiKey = () => ENV.llmApiKey || ENV.forgeApiKey;
+
+const resolveApiUrl = () => {
+  const { base, legacyForge } = resolveBaseUrl();
+  return legacyForge ? `${base}/v1/chat/completions` : `${base}/chat/completions`;
+};
 
 const assertApiKey = () => {
-  if (!ENV.forgeApiKey) {
-    throw new Error("OPENAI_API_KEY is not configured");
+  if (!resolveApiKey()) {
+    throw new Error(
+      "LLM_API_KEY is not configured. Set LLM_API_KEY (and optionally LLM_BASE_URL / LLM_MODEL) for an OpenAI-compatible provider such as OpenRouter."
+    );
   }
 };
 
@@ -378,8 +398,8 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.tool_choice = normalizedToolChoice;
   }
 
-  const resolvedMaxTokens = max_tokens ?? maxTokens;
-  if (typeof resolvedMaxTokens === "number") {
+  const resolvedMaxTokens = max_tokens ?? maxTokens ?? ENV.llmMaxTokens;
+  if (typeof resolvedMaxTokens === "number" && resolvedMaxTokens > 0) {
     payload.max_tokens = resolvedMaxTokens;
   }
 
@@ -405,7 +425,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
+      authorization: `Bearer ${resolveApiKey()}`,
     },
     body: JSON.stringify(payload),
   });
@@ -435,12 +455,11 @@ export type ModelsResponse = {
 export async function listLLMModels(): Promise<ModelsResponse> {
   assertApiKey();
 
-  const url = ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
-    ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/models`
-    : "https://forge.manus.im/v1/models";
+  const { base, legacyForge } = resolveBaseUrl();
+  const url = legacyForge ? `${base}/v1/models` : `${base}/models`;
 
   const response = await fetchWithBackoff(url, {
-    headers: { authorization: `Bearer ${ENV.forgeApiKey}` },
+    headers: { authorization: `Bearer ${resolveApiKey()}` },
   });
 
   if (!response.ok) {
@@ -451,4 +470,61 @@ export async function listLLMModels(): Promise<ModelsResponse> {
   }
 
   return (await response.json()) as ModelsResponse;
+}
+
+type EmbeddingsResponse = {
+  data: Array<{ index: number; embedding: number[] }>;
+};
+
+const EMBEDDING_BATCH_SIZE = 50;
+
+/**
+ * Create embeddings for a batch of texts on the configured
+ * OpenAI-compatible provider. Returns one vector per input, or null when
+ * embeddings are unavailable (no key, provider error, malformed reply) so
+ * callers can degrade to lexical ranking instead of failing.
+ */
+export async function createEmbeddings(
+  inputs: string[],
+): Promise<number[][] | null> {
+  if (inputs.length === 0) return [];
+  if (!resolveApiKey()) return null;
+
+  const { base, legacyForge } = resolveBaseUrl();
+  const url = legacyForge ? `${base}/v1/embeddings` : `${base}/embeddings`;
+
+  const vectors: number[][] = [];
+  try {
+    for (let start = 0; start < inputs.length; start += EMBEDDING_BATCH_SIZE) {
+      const batch = inputs.slice(start, start + EMBEDDING_BATCH_SIZE);
+      const response = await fetchWithBackoff(url, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${resolveApiKey()}`,
+        },
+        body: JSON.stringify({ model: ENV.embeddingModel, input: batch }),
+      });
+      if (!response.ok) {
+        console.warn(
+          `Embeddings request failed: ${response.status} ${response.statusText}`,
+        );
+        return null;
+      }
+      const payload = (await response.json()) as EmbeddingsResponse;
+      const ordered = [...payload.data].sort((a, b) => a.index - b.index);
+      if (
+        ordered.length !== batch.length ||
+        ordered.some(item => !Array.isArray(item.embedding))
+      ) {
+        console.warn("Embeddings response malformed; skipping vectors");
+        return null;
+      }
+      vectors.push(...ordered.map(item => item.embedding));
+    }
+  } catch (error) {
+    console.warn("Embeddings request errored; skipping vectors", error);
+    return null;
+  }
+  return vectors;
 }

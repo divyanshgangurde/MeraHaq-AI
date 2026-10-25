@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { PDFParse } from "pdf-parse";
 import { and, eq } from "drizzle-orm";
 import {
@@ -14,6 +15,7 @@ import {
 } from "../../drizzle/schema";
 import { getDb } from "../db";
 import { storagePut } from "../storage";
+import { createEmbeddings } from "../_core/llm";
 import { validateEvidenceQuote } from "./evidenceValidation";
 import {
   normalizeDateReference,
@@ -42,6 +44,17 @@ type IngestionRequest = {
   sourceUrl: string;
   issuedOn?: Date;
   relatedDocumentId?: number;
+  /**
+   * Optional local file holding the bytes of the document at sourceUrl.
+   * Used when the official host cannot be fetched directly from the
+   * deployment network (e.g. it drops non-browser connections) but an
+   * authentic copy of the official file was retrieved through an archive
+   * of the exact official URL. The recorded sourceUrl, hash and
+   * provenance remain those of the official document; byteSourceNote is
+   * written to the ingestion run for audit.
+   */
+  localBytesPath?: string;
+  byteSourceNote?: string;
 };
 
 type PageText = { page: number; text: string };
@@ -66,6 +79,17 @@ export function assertOfficialPdfUrl(sourceUrl: string): URL {
   return url;
 }
 
+export function assertPdfBytes(bytes: Buffer): Buffer {
+  if (bytes.byteLength === 0 || bytes.byteLength > MAX_DOCUMENT_BYTES) {
+    throw new Error(
+      "PDF is empty or exceeds the configured size limit"
+    );
+  }
+  if (bytes.subarray(0, 4).toString() !== "%PDF")
+    throw new Error("File does not have a PDF signature");
+  return bytes;
+}
+
 async function downloadPdf(sourceUrl: string): Promise<Buffer> {
   assertOfficialPdfUrl(sourceUrl);
   const response = await fetch(sourceUrl, {
@@ -88,15 +112,11 @@ async function downloadPdf(sourceUrl: string): Promise<Buffer> {
   ) {
     throw new Error("Official source did not identify itself as a PDF");
   }
-  const bytes = Buffer.from(await response.arrayBuffer());
-  if (bytes.byteLength === 0 || bytes.byteLength > MAX_DOCUMENT_BYTES) {
-    throw new Error(
-      "Downloaded PDF is empty or exceeds the configured size limit"
-    );
-  }
-  if (bytes.subarray(0, 4).toString() !== "%PDF")
-    throw new Error("Downloaded file does not have a PDF signature");
-  return bytes;
+  return assertPdfBytes(Buffer.from(await response.arrayBuffer()));
+}
+
+async function readLocalPdfBytes(localBytesPath: string): Promise<Buffer> {
+  return assertPdfBytes(await readFile(localBytesPath));
 }
 
 function parsePdfDate(value: unknown): Date | null {
@@ -265,7 +285,9 @@ export async function ingestOfficialPdf(input: IngestionRequest) {
   const runId = Number(runResult[0].insertId);
 
   try {
-    const pdfBytes = await downloadPdf(url.toString());
+    const pdfBytes = input.localBytesPath
+      ? await readLocalPdfBytes(input.localBytesPath)
+      : await downloadPdf(url.toString());
     const documentHash = createHash("sha256").update(pdfBytes).digest("hex");
     const existing = await db
       .select()
@@ -446,15 +468,29 @@ export async function ingestOfficialPdf(input: IngestionRequest) {
         .join("\n")
         .slice(0, 6_000)
     );
+    // Real per-chunk vectors for the cosine half of hybrid ranking. Null
+    // when the embedding provider is unavailable; ranking then degrades to
+    // lexical + term-overlap exactly as before.
+    const chunkEmbeddings = await createEmbeddings(
+      chunks.map(chunk => chunk.content)
+    );
     if (chunks.length > 0) {
       await db.insert(documentChunks).values(
-        chunks.map((chunk, chunkIndex) => ({
-          documentId,
-          chunkIndex,
-          ...chunk,
-          embeddingJson: semanticProfile,
-          vectorDimensions: semanticProfile.terms.length,
-        }))
+        chunks.map((chunk, chunkIndex) => {
+          const embedding = chunkEmbeddings?.[chunkIndex];
+          return {
+            documentId,
+            chunkIndex,
+            ...chunk,
+            embeddingJson: {
+              terms: semanticProfile.terms,
+              ...(embedding ? { embedding } : {}),
+            },
+            vectorDimensions: embedding
+              ? embedding.length
+              : semanticProfile.terms.length,
+          };
+        })
       );
     }
     await db
@@ -465,9 +501,12 @@ export async function ingestOfficialPdf(input: IngestionRequest) {
         completedAt: new Date(),
         steps: [
           {
-            stage: "downloaded",
+            stage: input.localBytesPath ? "bytes-from-local-cache" : "downloaded",
             at: new Date().toISOString(),
             sha256: documentHash,
+            ...(input.byteSourceNote
+              ? { byteSourceNote: input.byteSourceNote }
+              : {}),
           },
           {
             stage: "extracted",
