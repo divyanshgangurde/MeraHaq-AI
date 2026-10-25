@@ -1,5 +1,5 @@
 import { BrandMark } from "@/components/dhruv/BrandMark";
-import { MockAnswerCard } from "@/components/dhruv/MockAnswerCard";
+import { AnswerCard } from "@/components/dhruv/AnswerCard";
 import { QuestionComposer } from "@/components/dhruv/QuestionComposer";
 import { TrustIndicator } from "@/components/dhruv/TrustIndicator";
 import {
@@ -270,7 +270,7 @@ export default function Home() {
 
           {viewState === "answer" && (
             <div id="preview">
-              <MockAnswerCard
+              <AnswerCard
                 question={question}
                 response={answer ?? undefined}
               />
