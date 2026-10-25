@@ -3,9 +3,14 @@
 Prepared on the `de-manus-openrouter` branch. The app runs on Vercel as:
 
 - **Frontend** — the Vite build (`dist/public`), served by Vercel's CDN.
-- **API** — the existing Express + tRPC app as a single Vercel Function
-  (`api/index.ts` → `server/_core/app.ts`), per Vercel's official Express
-  guide. Rewrites in `vercel.json` send `/api/*` and `/storage/*` to it.
+- **API** — the existing Express + tRPC app as a single Vercel Function,
+  per Vercel's official Express guide. `api/index.ts` re-exports a
+  pre-bundled artifact (`api/_app.bundle.mjs`, built by
+  `scripts/build-api.mjs` from `server/_core/vercel-entry.ts`): Vercel's
+  ESM loader does not resolve the extensionless relative imports used
+  across `server/`, so serving the raw module graph fails with
+  ERR_MODULE_NOT_FOUND. `pnpm run build` regenerates the bundle.
+  Rewrites in `vercel.json` send `/api/*` and `/storage/*` to it.
 - **Database** — TiDB Cloud Serverless (MySQL-compatible, free tier). The
   local MariaDB cannot be reached from Vercel, so the corpus must live in
   TiDB. Answers read chunks + embeddings from the DB, nothing else.
