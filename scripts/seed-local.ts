@@ -114,10 +114,22 @@ async function main() {
         title: doc.title,
         issuingAuthority:
           ISSUING_AUTHORITY[chain.schemeSlug] ?? "Government of India",
-        documentType: (index === 0 ? "guideline" : "amendment") as
+        // Explicit per-document type wins; the position-based default is
+        // only a fallback for the original entries (a consolidated
+        // revision is a guideline, not an amendment).
+        documentType: (doc.documentType ??
+          (index === 0 ? "guideline" : "amendment")) as
           | "guideline"
-          | "amendment",
+          | "amendment"
+          | "clarification"
+          | "corrigendum"
+          | "notification"
+          | "order"
+          | "other",
         sourceUrl: doc.sourceUrl,
+        issuedOn: doc.issuedOn
+          ? new Date(`${doc.issuedOn}T00:00:00.000Z`)
+          : undefined,
         relatedDocumentId: index > 0 ? previousDocumentId : undefined,
       };
       let result: Awaited<ReturnType<typeof ingestOfficialPdf>> | null = null;

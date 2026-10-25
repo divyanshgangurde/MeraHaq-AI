@@ -24,8 +24,8 @@ import {
 import { detectDeterministicRelationship } from "./relationshipRules";
 import { createSemanticProfile } from "./semantic";
 
-const MAX_DOCUMENT_BYTES = 20 * 1024 * 1024;
-const MAX_PAGES = 80;
+const MAX_DOCUMENT_BYTES = 64 * 1024 * 1024;
+const MAX_PAGES = 400;
 const FETCH_TIMEOUT_MS = 60_000;
 
 type IngestionRequest = {
@@ -171,7 +171,14 @@ async function extractPageAwareText(
   const parser = new PDFParse({ data: pdfBytes });
   try {
     const info = await parser.getInfo({ parsePageInfo: true });
-    const pageCount = Math.min(info.total, MAX_PAGES);
+    // Never silently truncate: a cut-off guideline ingested as if complete
+    // is exactly the stale/partial-evidence failure this project exists to
+    // prevent. Over the cap is a loud failure, not a shorter document.
+    if (info.total > MAX_PAGES)
+      throw new Error(
+        `PDF has ${info.total} pages, exceeding the ${MAX_PAGES}-page ingestion cap`
+      );
+    const pageCount = info.total;
     const pages: PageText[] = [];
     for (let page = 1; page <= pageCount; page += 1) {
       const result = await parser.getText({ partial: [page] });
