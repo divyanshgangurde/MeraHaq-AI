@@ -381,12 +381,56 @@ var ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? ""
 };
 
+// server/dbUrl.ts
+function parseDbUrl(raw) {
+  const unquoted = raw.trim().replace(/^(['"])([\s\S]*)\1$/, "$2");
+  const noScheme = unquoted.replace(/^mysql2?:\/\//, "");
+  const atIdx = noScheme.lastIndexOf("@");
+  const userinfo = atIdx >= 0 ? noScheme.slice(0, atIdx) : "";
+  const rest = atIdx >= 0 ? noScheme.slice(atIdx + 1) : noScheme;
+  const colonIdx = userinfo.indexOf(":");
+  const user = colonIdx >= 0 ? userinfo.slice(0, colonIdx) : userinfo;
+  const password = colonIdx >= 0 ? userinfo.slice(colonIdx + 1) : "";
+  const slashIdx = rest.indexOf("/");
+  const hostport = slashIdx >= 0 ? rest.slice(0, slashIdx) : rest;
+  const tail = slashIdx >= 0 ? rest.slice(slashIdx + 1) : "";
+  const qIdx = tail.indexOf("?");
+  const database = qIdx >= 0 ? tail.slice(0, qIdx) : tail;
+  const query = qIdx >= 0 ? tail.slice(qIdx + 1) : "";
+  const portIdx = hostport.lastIndexOf(":");
+  const host = portIdx >= 0 ? hostport.slice(0, portIdx) : hostport;
+  const port = portIdx >= 0 ? Number(hostport.slice(portIdx + 1)) || 3306 : 3306;
+  const config = {
+    host,
+    port,
+    user: safeDecode(user),
+    password: safeDecode(password),
+    database: safeDecode(database)
+  };
+  const sslRaw = new URLSearchParams(query).get("ssl");
+  if (sslRaw) {
+    try {
+      config.ssl = JSON.parse(sslRaw);
+    } catch {
+      config.ssl = sslRaw;
+    }
+  }
+  return config;
+}
+function safeDecode(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 // server/db.ts
 var _db = null;
 async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      _db = drizzle({ connection: parseDbUrl(process.env.DATABASE_URL) });
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -1759,7 +1803,6 @@ async function answerPolicyQuestion(input) {
 // server/dhruv/ingestion.ts
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { PDFParse } from "pdf-parse";
 import { and as and2, eq as eq4 } from "drizzle-orm";
 
 // server/dhruv/relationshipRules.ts
@@ -1937,6 +1980,7 @@ function extractDocumentMetadata(pages, info, parsedCreationDate) {
   };
 }
 async function extractPageAwareText(pdfBytes) {
+  const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: pdfBytes });
   try {
     const info = await parser.getInfo({ parsePageInfo: true });

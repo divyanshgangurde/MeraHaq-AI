@@ -11,6 +11,14 @@ Prepared on the `de-manus-openrouter` branch. The app runs on Vercel as:
   across `server/`, so serving the raw module graph fails with
   ERR_MODULE_NOT_FOUND. `pnpm run build` regenerates the bundle.
   Rewrites in `vercel.json` send `/api/*` and `/storage/*` to it.
+- Two more serverless gotchas, both found from production logs and fixed:
+  `pdf-parse`/pdfjs is imported lazily inside ingestion only — its legacy
+  build throws `ReferenceError: DOMMatrix` at module load when the optional
+  `@napi-rs/canvas` package is pruned from the function, which killed every
+  route on cold start. And `server/db.ts` passes drizzle a config object
+  from `server/dbUrl.ts` instead of the raw DATABASE_URL string: drizzle's
+  string path runs `new URL()` on it, which rejects valid TiDB URLs
+  (raw JSON `ssl` query, special characters, stray quotes).
 - **Database** — TiDB Cloud Serverless (MySQL-compatible, free tier). The
   local MariaDB cannot be reached from Vercel, so the corpus must live in
   TiDB. Answers read chunks + embeddings from the DB, nothing else.

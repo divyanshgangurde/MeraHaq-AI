@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { PDFParse } from "pdf-parse";
 import { and, eq } from "drizzle-orm";
 import {
   documentArtifacts,
@@ -163,6 +162,12 @@ export function extractDocumentMetadata(
 async function extractPageAwareText(
   pdfBytes: Buffer
 ): Promise<{ pages: PageText[]; metadata: ExtractedMetadata }> {
+  // Lazy import: pdf-parse pulls in pdfjs-dist, whose legacy build throws at
+  // module load (ReferenceError: DOMMatrix) in runtimes without the optional
+  // @napi-rs/canvas package — e.g. Vercel functions, where it is pruned.
+  // PDF parsing is ingestion-only; it must never sit in the request path's
+  // startup graph, or every route dies on cold start.
+  const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: pdfBytes });
   try {
     const info = await parser.getInfo({ parsePageInfo: true });
