@@ -1,7 +1,10 @@
 import type { Express, Request, Response } from "express";
+import { eq, or } from "drizzle-orm";
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import path from "node:path";
+import { documents } from "../../drizzle/schema";
+import { getDb } from "../db";
 import { resolveStoragePath } from "../storage";
 
 // Serves objects written by server/storage.ts from local disk.
@@ -20,34 +23,76 @@ const CONTENT_TYPES: Record<string, string> = {
   ".webp": "image/webp",
 };
 
-async function serveStorageObject(req: Request, res: Response) {
-  const key = (req.params as Record<string, string>)[0];
-  if (!key) {
-    res.status(400).send("Missing storage key");
-    return;
-  }
+export type FallbackSourceLookup = (key: string) => Promise<string | null>;
 
+function isSafeHttpUrl(raw: string | null | undefined): raw is string {
+  if (!raw) return false;
   try {
-    const full = resolveStoragePath(key);
-    const info = await stat(full).catch(() => null);
-    if (!info || !info.isFile()) {
-      res.status(404).send("Storage object not found");
-      return;
-    }
-    const contentType =
-      CONTENT_TYPES[path.extname(full).toLowerCase()] ??
-      "application/octet-stream";
-    res.set("Content-Type", contentType);
-    res.set("Content-Length", String(info.size));
-    res.set("Cache-Control", "no-store");
-    createReadStream(full).pipe(res);
-  } catch (err) {
-    console.error("[Storage] serve failed:", err);
-    res.status(500).send("Storage error");
+    const parsed = new URL(raw);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
   }
 }
 
+export async function findFallbackSourceUrl(
+  key: string
+): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const normalized = key.replace(/^\/+/, "");
+  const rows = await db
+    .select({ sourceUrl: documents.sourceUrl })
+    .from(documents)
+    .where(
+      or(
+        eq(documents.storageKey, normalized),
+        eq(documents.extractedTextStorageKey, normalized)
+      )
+    )
+    .limit(1);
+  const url = rows[0]?.sourceUrl;
+  return isSafeHttpUrl(url) ? url : null;
+}
+
+export function createServeStorageObject(
+  lookupFallback: FallbackSourceLookup = findFallbackSourceUrl
+) {
+  return async function serveStorageObject(req: Request, res: Response) {
+    const key = (req.params as Record<string, string>)[0];
+    if (!key) {
+      res.status(400).send("Missing storage key");
+      return;
+    }
+
+    try {
+      const full = resolveStoragePath(key);
+      const info = await stat(full).catch(() => null);
+      if (!info || !info.isFile()) {
+        const fallbackUrl = await lookupFallback(key).catch(() => null);
+        if (isSafeHttpUrl(fallbackUrl)) {
+          res.redirect(302, fallbackUrl);
+          return;
+        }
+        res.status(404).send("Storage object not found");
+        return;
+      }
+      const contentType =
+        CONTENT_TYPES[path.extname(full).toLowerCase()] ??
+        "application/octet-stream";
+      res.set("Content-Type", contentType);
+      res.set("Content-Length", String(info.size));
+      res.set("Cache-Control", "no-store");
+      createReadStream(full).pipe(res);
+    } catch (err) {
+      console.error("[Storage] serve failed:", err);
+      res.status(500).send("Storage error");
+    }
+  };
+}
+
 export function registerStorageProxy(app: Express) {
+  const serveStorageObject = createServeStorageObject();
   app.get("/storage/*", serveStorageObject);
   app.get("/manus-storage/*", serveStorageObject);
 }
